@@ -9,7 +9,6 @@ PHP Architect Test for Robert
 
 ## Tasks:
 ## Task 1: Design Patterns and Architecture
-
 You are tasked with designing the architecture for a new Computer-Assisted Translation tool. Consider the following aspects:
 
 * How would you structure the system to handle multilingual content efficiently?
@@ -18,26 +17,29 @@ You are tasked with designing the architecture for a new Computer-Assisted Trans
 * Briefly describe how you would implement version control for translations.
 
 ## Task 2: PHP Coding Challenge
-
 Implement a basic PHP class for managing translation units. The class should have the following functionalities:
 
 * Add a new translation unit.
 * Retrieve a translation unit by ID.
 * Update a translation unit and keep history.
-* Delete a translation unit.
 
 Please provide a simple usage example demonstrating these functionalities.
 
 ## Task 3: API Design
-
 Design a simple RESTful API for the CAT tool. The API should allow users to perform CRUD operations on translation units. Include endpoints for listing all units, retrieving a specific unit, updating a unit, and deleting a unit.
 
-## Task 4: Testing
+## Task 4: ReactJS Task
+Develop a basic ReactJS component to interact with the API designed in Task 3. The React component should:
 
+* Display a list of translation units (i.e. 10).
+* Allow users to add translations.
+* Allow users to edit translations.
+
+## Task 5: Testing (optional)
 Write unit tests for the PHP class you implemented in Task 2. Use a testing framework of your choice.
 
 ## Evaluation Criteria:
-Design and Architecture (40 points):
+Design and Architecture (30 points):
 * Well-structured architecture considering multilingual content and design patterns.
 * Logical and efficient database schema.
 * Clear explanation of version control implementation.
@@ -50,5 +52,9 @@ API Design (20 points):
 * RESTful design principles.
 * Clear definition of endpoints and their functionalities.
 
-Testing (10 points):
+ReactJS Task (20 points):
+* Proper implementation of the ReactJS component.
+* Functionality to interact with the API.
+
+Testing (10000000 points):
 * Comprehensive unit tests for the PHP class.
