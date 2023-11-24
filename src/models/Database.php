@@ -1,8 +1,7 @@
 <?php
 
 namespace Core\Models;
-
-include 'config.ini';
+  
 use PDO;
 use PDOException;
 
@@ -18,29 +17,29 @@ class DatabaseConnection
     private $dbConn;
 
     public function __construct(){
-        $config = parse_ini_file('config.ini');
-        $this->dbHost     = $config['database']['host'];
-        $this->dbName     = $config['database']['database'];
-        $this->dbUsername = $config['database']['username'];
-        $this->dbPassword = $config['database']['password'];
+        $config = parse_ini_file('config.ini'); 
+        $this->dbHost     = $config['host'];
+        $this->dbName     = $config['database'];
+        $this->dbUsername = $config['username'];
+        $this->dbPassword = $config['password'];
         $this->dsn        = sprintf("mysql:host=%s;dbname=%s;port=3306;charset=utf8" , $this->dbHost , $this->dbName);
-
         $this->dbConn     = $this->Connect();
     }   
 
     public function Connect() : PDO {
-        try{
+        try{ 
+
             $conn = new PDO(
                 $this->dsn,
                 $this->dbUsername,
                 $this->dbPassword
             );
-
+ 
             return $conn;
 
-        } catch( PDOException $e){
+        } catch( PDOException $e){ 
             error_log("PDO connection failed: " . $e->getMessage());
-            return null;
+            return $e->getMessage();
         }   
     }
 

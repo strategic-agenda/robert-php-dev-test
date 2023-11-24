@@ -3,18 +3,25 @@ import React, { useState } from 'react';
 
 const TranslationForm = ({ onCreate }) => {
     const [text, setText] = useState('');
+    const [translated_text, settranslated_text] = useState('');
 
-    async function AddTranslation(text) {
-        const response = await fetch('http://localhost:3000/api/translations.php', {
+    async function AddTranslation(text, translated_text) {
+   
+        const response = await fetch('http://localhost:8000/api/translations.php/Add', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                // 'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify({
-                text: text,
-                language: 1 // The Language Id We Are Currently Working With
+                'text'   : text,
+                'trans_text' : translated_text,
+                'langId' : 1 // The Language Id We Are Currently Working With
             })
         })
+        
+        console.log(response); 
+        
         if (!response.ok) {
           throw new Error('Failed to add translation')
         }
@@ -24,10 +31,10 @@ const TranslationForm = ({ onCreate }) => {
     const handleSubmit = async (e) => {
       e.preventDefault();
  
-      const newTranslation = await AddTranslation(text);
+      const newTranslation = await AddTranslation(text, translated_text);
       onCreate(newTranslation);
       setText('');
-    
+     
     };
   
     return (
@@ -37,6 +44,12 @@ const TranslationForm = ({ onCreate }) => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text to translate"
+        />
+        <input
+          type="text"
+          value={translated_text}
+          onChange={(e) => settranslated_text(e.target.value)}
+          placeholder="Enter translation text"
         />
         <button type="submit">Create</button>
       </form>

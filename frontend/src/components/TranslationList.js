@@ -3,36 +3,48 @@ import React, { useState } from 'react';
  
 const TranslationItem = ({ translation, onUpdate, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [text, setText] = useState(translation.text);
+    const [text, setText] = useState(translation.unit_text);
+    const [translated_text, settranslated_text] = useState(translation.translated_text);
   
     const handleUpdate = async () => { 
-        try {
-            const response = await fetch('http://localhost:3000/api/translations.php', {
-                method: 'UPDATE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    text: translation.text, 
-                    id: translation.id
-                }), 
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to update translation unit')
+        
+        setIsEditing(!isEditing); 
+        onUpdate(translation.id, { ...translation, translated_text });
+        if (isEditing) {
+            console.log(translation);
+            try {
+                const response = await fetch('http://localhost:8000/api/translations.php/Update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({  
+                        'id': translation.id,
+                        'trans_text' : translation.translated_text
+                    }),
+                })
+    
+                if (!response.ok) {
+                    throw new Error('Failed to update translation unit')
+                }
+    
+            } catch (error) {
+                console.error('Error:', error)
             }
-
-            onUpdate(translation.id, { ...translation, text });
-            setIsEditing(!isEditing); 
-        } catch (error) {
-            console.error('Error:', error)
         }
+        
     };
     
     const handleDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/translations.php?id=${translation.id}`, {
-                method: 'DELETE',
+            const response = await fetch(`http://localhost:8000/api/translations.php/Delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: JSON.stringify({  
+                    'id': translation.id
+                }),
             })
 
             if (response.ok) {
@@ -46,15 +58,18 @@ const TranslationItem = ({ translation, onUpdate, onDelete }) => {
     }
   
     return (
-      <li>
+      <li className='listItem'>
+        <span>
+            {text}
+        </span>
         {isEditing ? (
           <input
             type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+            value={translated_text}
+            onChange={(e) => settranslated_text(e.target.value)}
           />
         ) : (
-          <span>{translation.text}</span>
+          <span>{translated_text}</span>
         )}
         <button onClick={handleUpdate}>
           {isEditing ? 'Save' : 'Edit'}
@@ -65,8 +80,12 @@ const TranslationItem = ({ translation, onUpdate, onDelete }) => {
 };
 
 const TranslationList = ({ translations, onUpdate, onDelete }) => {
+    if (translations == []) {
+        return;
+    }
+
     return (
-        <ul>
+        <ul> 
             {translations.map((translation) => (
                 <TranslationItem
                     key={translation.id}

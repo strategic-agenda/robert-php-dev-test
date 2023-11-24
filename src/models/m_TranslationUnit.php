@@ -33,21 +33,22 @@ class TranslationUnitModel{
         return true;
     }
 
-    public function UpdateTranslationUnit(int $unit_id , string $unit_text , string $translated_text ) : bool {
+    public function UpdateTranslationUnit(int $unit_id , string $translated_text ) : bool {
         
         $this->dbConn->beginTransaction();
         try{
             $unit = $this->GetTranslationUnit($unit_id);
 
-            $current_version    = $unit['translation_version'];
-            $unit_text          = $unit['unit_text'];
-            $translated_text    = $unit['translated_text'];
+            // $current_version    = $unit['translation_version'] + 1;
+            $current_version    = 1; 
+            // $translated_text    = $unit['translated_text'];
+            $translated_text    = $translated_text;
 
             $stmt = $this->dbConn->prepare(
-                "UPDATE translation_units SET (unit_text, translated_text , translation_version) VALUES (?, ? , ?) WHERE id=?"
+                "UPDATE `translation_units` SET `translated_text` = ?, `translation_version` = ? WHERE id = ?"
             );
 
-            $stmt->execute([$unit_text , $translated_text , $current_version+1 , $unit_id]);
+            $stmt->execute([$translated_text , $current_version, $unit_id]);
 
             $stmt = $this->dbConn->prepare(
                 "INSERT INTO translation_unit_records (translation_unit_id, translation_version , translated_text) VALUES (?, ?, ?)"
@@ -76,7 +77,7 @@ class TranslationUnitModel{
         );
         $stmt->execute();
         
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
     }
 
     public function GetTranslationUnitRecord($id) : ?array {

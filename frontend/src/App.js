@@ -10,21 +10,27 @@ function App() {
   useEffect(() => {
     console.log('Effect running')
 
-    fetch('http://localhost/api/translations.php').then((response) => {
+    fetch('http://localhost:8000/api/translations.php/Get?id=-1').then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
       return response.json()
-    }).then((data) => {
-      console.log(data)
-      setTranslations(data)
+    }).then((data) => { 
+      if (data.length != 0 && typeof data != 'boolean' ) {
+        console.log(data)
+        setTranslations(data)
+      }
     }).catch((error) => {
       console.error('Fetch error:', error)
     })
   }, []);
 
   const handleCreate = (newTranslation) => {
-    setTranslations([...translations, newTranslation]);
+    if (translations) {
+      setTranslations([...translations, newTranslation]);
+    } else {
+      setTranslations([newTranslation]);
+    }
   };
 
   const handleUpdate = (id, updatedTranslation) => {

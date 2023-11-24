@@ -2,6 +2,7 @@
 
 namespace Core\Logic\Translation_unit;
 
+include '../src/models/m_TranslationUnit.php';
 use \Core\Models\TranslationUnitModel;
 
 use PDO;
@@ -22,8 +23,8 @@ class TranslationUnit
         return $this->model->GetTranslationUnit($id);
     }
 
-    public function UpdateTranslationUnit($id , $text , $trans_text) : bool{
-        return $this->model->UpdateTranslationUnit($id , $text , $trans_text);
+    public function UpdateTranslationUnit($id , $trans_text) : bool{
+        return $this->model->UpdateTranslationUnit($id , $trans_text);
     }
 
     public function DeleteTranslationUnit($id) : bool{
