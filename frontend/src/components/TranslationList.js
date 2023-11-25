@@ -3,7 +3,7 @@ import React, { useState } from 'react';
  
 const TranslationItem = ({ translation, onUpdate, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [text, setText] = useState(translation.unit_text);
+    const [text] = useState(translation.unit_text);
     const [translated_text, settranslated_text] = useState(translation.translated_text);
   
     const handleUpdate = async () => { 
@@ -20,7 +20,7 @@ const TranslationItem = ({ translation, onUpdate, onDelete }) => {
                     },
                     body: JSON.stringify({  
                         'id': translation.id,
-                        'trans_text' : translation.translated_text
+                        'trans_text' : translated_text
                     }),
                 })
     
@@ -80,7 +80,7 @@ const TranslationItem = ({ translation, onUpdate, onDelete }) => {
 };
 
 const TranslationList = ({ translations, onUpdate, onDelete }) => {
-    if (translations == []) {
+    if (translations === []) {
         return;
     }
 
