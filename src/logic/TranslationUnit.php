@@ -15,8 +15,8 @@ class TranslationUnit
         $this->model = new TranslationUnitModel();
     }
 
-    public function AddTranslationUnit(string $text , int $langId) : bool{
-        return $this->model->AddTranslationUnit($text , $langId);
+    public function AddTranslationUnit(string $text , int $langId, string $trans_text) : int {
+        return $this->model->AddTranslationUnit($text , $langId, $trans_text);
     }
 
     public function GetTranslationUnit($id) : ?array{

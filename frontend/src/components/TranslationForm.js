@@ -5,34 +5,46 @@ const TranslationForm = ({ onCreate }) => {
     const [text, setText] = useState('');
     const [translated_text, settranslated_text] = useState('');
 
-    async function AddTranslation(text, translated_text) {
-   
-        const response = await fetch('http://localhost:8000/api/translations.php/Add', {
-            method: 'POST',
-            headers: {
-                // 'Content-Type': 'application/json',
-                'Content-Type': 'text/plain',
-            },
-            body: JSON.stringify({
-                'text'   : text,
-                'trans_text' : translated_text,
-                'langId' : 1 // The Language Id We Are Currently Working With
-            })
+    function AddTranslation(text, translated_text) {
+    
+        fetch('http://localhost:8000/api/translations.php/Add', {
+          method: 'POST', 
+          headers: {
+              // 'Content-Type': 'application/json',
+              'Content-Type': 'text/plain',
+          },
+          body: JSON.stringify({
+            'text'   : text,
+            'trans_text' : translated_text,
+            'langId' : 1 // The Language Id We Are Currently Working With
+          })
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok')
+          }
+          console.log(response);
+          return response.json();
+        }).then((data) => { 
+          console.log(data);
+          if (data.length != 0 && typeof data != 'boolean' ) { 
+            onCreate({ 
+              id : data, 
+              translated_text : translated_text,  
+              unit_text : text
+            });
+          }
+        }).catch((error) => {
+          console.error('Fetch error:', error)
         })
         
-        console.log(response); 
-        
-        if (!response.ok) {
-          throw new Error('Failed to add translation')
-        }
-        return response.json()
     }
     
     const handleSubmit = async (e) => {
       e.preventDefault();
- 
-      const newTranslation = await AddTranslation(text, translated_text);
-      onCreate(newTranslation);
+
+      AddTranslation(text, translated_text);
+      // const newTranslation = await AddTranslation(text, translated_text);
+      // onCreate(newTranslation);
       setText('');
      
     };

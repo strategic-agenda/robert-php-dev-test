@@ -15,13 +15,16 @@ class TranslationUnitModel{
     }
 
 
-    public function AddTranslationUnit(string $unit_text , int $language_id) : bool {
+    public function AddTranslationUnit(string $unit_text , int $language_id, string $trans_text) : int {
         $stmt = $this->dbConn->prepare(
-            "INSERT INTO translation_units (unit_text, language_id) VALUES (?, ?)"
+            "INSERT INTO translation_units (unit_text, language_id, translated_text) VALUES (?, ?, ?)"
         );
-        $stmt->execute([$unit_text , $language_id]);
-
-        return true;
+        
+        $stmt->execute([$unit_text , $language_id, $trans_text]);
+         
+        $LastIdInserted = $this->dbConn->lastInsertId();
+  
+        return $LastIdInserted;
     }
 
     public function AddTranslationUnitRecord(int $translation_unit_id , int $translation_version , int $translated_text) : bool {
@@ -39,8 +42,8 @@ class TranslationUnitModel{
         try{
             $unit = $this->GetTranslationUnit($unit_id);
 
-            // $current_version    = $unit['translation_version'] + 1;
-            $current_version    = 1; 
+            $current_version    = $unit['translation_version'];
+            // $current_version    = 1; 
             // $translated_text    = $unit['translated_text'];
             $translated_text    = $translated_text;
 
@@ -48,15 +51,18 @@ class TranslationUnitModel{
                 "UPDATE `translation_units` SET `translated_text` = ?, `translation_version` = ? WHERE id = ?"
             );
 
-            $stmt->execute([$translated_text , $current_version, $unit_id]);
+            $stmt->execute([$translated_text , $current_version + 1, $unit_id]);
 
             $stmt = $this->dbConn->prepare(
                 "INSERT INTO translation_unit_records (translation_unit_id, translation_version , translated_text) VALUES (?, ?, ?)"
             );
             $stmt->execute([$unit_id , $current_version , $translated_text]);
 
+            $this->dbConn->commit();
+            
             return true;
         }catch (Exception $e){
+            $this->dbConn->rollBack();
             error_log("Update translation unit failed : " . $e->getMessage());
             return false;
         }

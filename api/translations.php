@@ -47,33 +47,36 @@ $unit = new TranslationUnit();
 
 if ($valid == 'Add'){ 
 
-    $jsonInput = file_get_contents("php://input"); 
-    $data = json_decode($jsonInput, true); 
+    $jsonInput  = file_get_contents("php://input"); 
+    $data       = json_decode($jsonInput, true); 
   
-    if ( !isset($data["text"]) || !isset($data["langId"]) ){
+    if ( !isset($data["text"]) || !isset($data["langId"]) || !isset($data["trans_text"]) ){
         header("HTTP/1.1 400 Bad Request");
         exit();
     }
 
 
-    $text   = htmlspecialchars($data["text"]);
-    $langId = (int)htmlspecialchars($data["langId"]);
+    $text       = htmlspecialchars($data["text"]);
+    $trans_text = htmlspecialchars($data["trans_text"]);
+    $langId     = (int)htmlspecialchars($data["langId"]);
 
-    $result = $unit->AddTranslationUnit($text , $langId);
+    $result = $unit->AddTranslationUnit($text , $langId, $trans_text); 
 
     if (!$result){
         header("HTTP/1.1 500 Internal Server Error");
         exit();  
     }
 
-    header("HTTP/1.1 201 Created");  
-    echo json_encode( ["message" => "Translation Unit Added Successfully"] );
+  
+    // header("HTTP/1.1 201 Created");    
+    // echo json_encode(["lastId" => $result]);
+    echo $result;
     exit();  
 }
 
 if ($valid == 'Update'){ 
-    $jsonInput = file_get_contents("php://input");
-    $data = json_decode($jsonInput, true); 
+    $jsonInput  = file_get_contents("php://input");
+    $data       = json_decode($jsonInput, true); 
 
     if (!isset($data["id"]) || !isset($data["trans_text"]) ){
         header("HTTP/1.1 400 Bad Request");
@@ -97,8 +100,8 @@ if ($valid == 'Update'){
 }
 
 if ($valid == 'Delete'){
-    $jsonInput = file_get_contents("php://input");
-    $data = json_decode($jsonInput, true); 
+    $jsonInput  = file_get_contents("php://input");
+    $data       = json_decode($jsonInput, true); 
 
     if (!isset($data["id"])){
         header("HTTP/1.1 400 Bad Request");

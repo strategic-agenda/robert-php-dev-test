@@ -26,6 +26,7 @@ function App() {
   }, []);
 
   const handleCreate = (newTranslation) => {
+    console.log(newTranslation)
     if (translations) {
       setTranslations([...translations, newTranslation]);
     } else {

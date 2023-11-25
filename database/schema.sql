@@ -22,7 +22,7 @@ CREATE TABLE translation_unit_records (
     `translation_version` INT NOT NULL,
     `translated_text` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (translation_unit_id) REFERENCES translation_units(id)
+    FOREIGN KEY (translation_unit_id) REFERENCES translation_units(id) ON DELETE CASCADE
 );
 
 CREATE INDEX translation_unit_records_versions ON translation_unit_records (translation_unit_id , translation_version)
