@@ -67,9 +67,6 @@ if ($valid == 'Add'){
         exit();  
     }
 
-  
-    // header("HTTP/1.1 201 Created");    
-    // echo json_encode(["lastId" => $result]);
     echo $result;
     exit();  
 }
@@ -95,7 +92,6 @@ if ($valid == 'Update'){
 
     header('Content-Type: application/json');
     header("HTTP/1.1 201 Created");
-    echo json_encode( ["message" => "Translation Unit Updated Successfully"] );
     exit();  
 }
 
@@ -128,19 +124,14 @@ if ($valid == 'Get'){
         exit();
     }
 
-    $id         = (int)htmlspecialchars($_GET["id"]);
+    $id = (int)htmlspecialchars($_GET["id"]);
     
     if ($id == -1){
         $result = $unit->GetAllTranslationUnits();
     }else{
         $result = $unit->GetTranslationUnit($id);
     }
- 
-    // if (!$result){
-    //     header("HTTP/1.1 500 Internal Server Error");
-    //     exit();  
-    // }
- 
+
     header('Content-Type: application/json');
     echo json_encode($result);
     exit();

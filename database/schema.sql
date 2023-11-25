@@ -26,3 +26,5 @@ CREATE TABLE translation_unit_records (
 );
 
 CREATE INDEX translation_unit_records_versions ON translation_unit_records (translation_unit_id , translation_version)
+
+INSERT INTO `languages` (label , code) VALUES (English , en)
