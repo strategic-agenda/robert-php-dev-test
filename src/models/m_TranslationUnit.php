@@ -42,10 +42,8 @@ class TranslationUnitModel{
         try{
             $unit = $this->GetTranslationUnit($unit_id);
 
-            $current_version    = $unit['translation_version'];
-            // $current_version    = 1; 
-            $otranslated_text   = $unit['translated_text'];
-            $translated_text    = $translated_text;
+            $current_version        = $unit['translation_version'];
+            $old_translated_text    = $unit['translated_text'];
 
             $stmt = $this->dbConn->prepare(
                 "UPDATE `translation_units` SET `translated_text` = ?, `translation_version` = ? WHERE id = ?"
@@ -56,7 +54,7 @@ class TranslationUnitModel{
             $stmt = $this->dbConn->prepare(
                 "INSERT INTO translation_unit_records (translation_unit_id, translation_version , translated_text) VALUES (?, ?, ?)"
             );
-            $stmt->execute([$unit_id , $current_version , $otranslated_text]);
+            $stmt->execute([$unit_id , $current_version , $old_translated_text]);
 
             $this->dbConn->commit();
             
