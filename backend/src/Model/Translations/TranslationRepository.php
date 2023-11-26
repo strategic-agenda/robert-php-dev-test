@@ -24,21 +24,6 @@ class TranslationRepository
     }
 
     /**
-     * @param int $id
-     * @return TranslationModel|null
-     */
-    public function getById(int $id): ?TranslationModel
-    {
-        $model = $this->model->load($id);
-
-        if ($model->isEmpty()) {
-            return null;
-        }
-
-        return $model;
-    }
-
-    /**
      * @param TranslationModel $model
      * @return TranslationModel
      * @throws ValidateException
@@ -85,7 +70,7 @@ class TranslationRepository
         }
 
 
-        if ($conditions) {
+        if (count($conditions)) {
             return 'WHERE ' . implode(' AND ', $conditions);
         } else {
             $this->params = [];
@@ -106,7 +91,7 @@ class TranslationRepository
         }
 
         if ($model->getSourceLanguage() == $model->getTargetLanguage()) {
-            throw new ValidateException('Field \'source language\' and \'target language\' connot be the same!');
+            throw new ValidateException('Field \'source language\' and \'target language\' cannot be the same!');
         }
     }
 
@@ -163,18 +148,6 @@ class TranslationRepository
         $model = $this->model->selectRow($sql, $sqlParams);
 
         return $model[0] ?? new TranslationModel();
-    }
-
-    /**
-     * @return void
-     */
-    private function prepareParams(): void
-    {
-        foreach (['source_language', 'target_language', 'search'] as $param) {
-            if (empty($this->params[$param])) {
-                unset($this->params[$param]);
-            }
-        }
     }
 
     /**
