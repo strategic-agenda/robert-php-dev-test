@@ -2,8 +2,11 @@
 
 namespace Core\Tests\Logic\Translation_unit;
 
-include 'src';
-use Core\Logic\Translation_unit\TranslationUnit;
+// include 'src';    
+
+include '../src/logic/TranslationUnit.php';
+use Core\Logic\Translation_unit\TranslationUnit; 
+ 
 use PHPUnit\Framework\TestCase;
 
 class TranslationUnitTest extends TestCase
