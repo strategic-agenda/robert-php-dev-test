@@ -1,11 +1,48 @@
 <?php
+ 
+// namespace Core\Tests\Logic\Translation_unit;
 
-namespace Core\Tests\Logic\Translation_unit;
+// require_once __DIR__ . '/../src/logic/TranslationUnit.php';
 
 // include 'src';    
+    
+include 'src/models/Database.php';
+use function Core\Models\InitializeDB;
 
-include '../src/logic/TranslationUnit.php';
-use Core\Logic\Translation_unit\TranslationUnit; 
+InitializeDB();
+
+include 'src/models/m_TranslationUnit.php';
+use Core\Models\TranslationUnitModel;
+
+class TranslationUnit
+{
+    private $model;
+
+    public function __construct(){
+        $this->model = new TranslationUnitModel();
+    }
+
+    public function AddTranslationUnit(string $text , int $langId, string $trans_text) : int {
+        return $this->model->AddTranslationUnit($text , $langId, $trans_text);
+    }
+
+    public function GetTranslationUnit($id) : ?array{
+        return $this->model->GetTranslationUnit($id);
+    }
+
+    public function UpdateTranslationUnit($id , $trans_text) : bool{
+        return $this->model->UpdateTranslationUnit($id , $trans_text);
+    }
+
+    public function DeleteTranslationUnit($id) : bool{
+        return $this->model->DeleteTranslationUnit($id);
+    }
+
+    public function GetAllTranslationUnits() : ?array{
+        return $this->model->GetAllTranslationUnits();
+    }
+}
+
  
 use PHPUnit\Framework\TestCase;
 
