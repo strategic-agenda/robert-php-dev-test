@@ -5,8 +5,6 @@ namespace Core\Logic\Translation_unit;
 include '../src/models/m_TranslationUnit.php';
 use \Core\Models\TranslationUnitModel;
 
-use PDO;
-
 class TranslationUnit
 {
     private $model;
