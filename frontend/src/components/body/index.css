@@ -1,0 +1,11 @@
+.container {
+    width: 1280px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.select-options {
+    display: flex;
+    margin-right: 5px;
+    justify-content: space-between;
+}

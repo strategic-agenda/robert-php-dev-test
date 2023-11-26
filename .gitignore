@@ -1,0 +1,5 @@
+.idea
+backend/vendor
+backend/.phpunit.cache
+frontend/node_modules
+frontend/build
