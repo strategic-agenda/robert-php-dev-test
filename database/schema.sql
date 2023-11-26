@@ -25,6 +25,6 @@ CREATE TABLE translation_unit_records (
     FOREIGN KEY (translation_unit_id) REFERENCES translation_units(id) ON DELETE CASCADE
 );
 
-CREATE INDEX translation_unit_records_versions ON translation_unit_records (translation_unit_id , translation_version)
+CREATE INDEX translation_unit_records_versions ON translation_unit_records (translation_unit_id , translation_version);
 
-INSERT INTO `languages` (label , code) VALUES (English , en)
+INSERT INTO `languages` (label , code) VALUES ('English', 'en');
