@@ -12,6 +12,7 @@ In the field of translation, a translation unit is a segment of a text which the
 2. Create a new branch with your name for making changes.
 3. Work on the tasks listed below.
 4. Once done, create a pull request from your branch to the main repository.
+5. Record a video with voiceover, presenting the tool and its logic, and send it to us.
 
 ## Tasks:
 ## Task 1: Design Patterns and Architecture
