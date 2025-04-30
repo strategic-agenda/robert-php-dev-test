@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+vendor
+node_modules
+*.log
+docker-compose.yml
+Dockerfile
+.dockerignore
+README.md
+tests
+phpunit.xml
+docker 
