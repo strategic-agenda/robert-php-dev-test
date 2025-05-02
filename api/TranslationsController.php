@@ -1,12 +1,22 @@
 <?php
 
 require_once __DIR__ . '/BaseApiController.php';
+require_once __DIR__ . '/../src/TranslationUnit.php';
+
+use Robert\CAT\TranslationUnit;
 
 /**
  * TranslationsController - Handles API requests for translation units and translations
+ *
+ * Refactored to use the TranslationUnit model for business logic
  */
 class TranslationsController extends BaseApiController
 {
+    /**
+     * @var TranslationUnit
+     */
+    private TranslationUnit $translationModel;
+
     /**
      * Define the regex pattern to extract translation unit ID from URI
      */
@@ -16,10 +26,21 @@ class TranslationsController extends BaseApiController
     }
 
     /**
+     * Initialize the TranslationUnit model
+     * This method is called from handleRequest() before processing any request
+     */
+    private function initModel(): void
+    {
+        $this->translationModel = new TranslationUnit($this->db);
+    }
+
+    /**
      * Handle GET requests for translation units
      */
     protected function handleGet(): void
     {
+        $this->initModel();
+
         if ($this->resourceId) {
             $this->getTranslationById($this->resourceId);
         } else {
@@ -34,44 +55,14 @@ class TranslationsController extends BaseApiController
      */
     private function getTranslationById(int $id): void
     {
-        // Get the translation unit
-        $unitQuery = "
-            SELECT tu.*
-            FROM translation_units tu
-            WHERE tu.id = :id
-        ";
-
-        $unitStmt = $this->db->prepare($unitQuery);
-        $unitStmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $unitStmt->execute();
-
-        $unit = $unitStmt->fetch(PDO::FETCH_ASSOC);
+        $unit = $this->translationModel->getTranslationUnitById($id);
 
         if (!$unit) {
             sendJsonResponse(['error' => 'Translation unit not found'], 404, $this->db);
             return;
         }
 
-        // Get associated translations
-        $translationsQuery = "
-            SELECT t.*, l.name as language_name, l.code as language_code
-            FROM translations t
-            JOIN languages l ON t.language_id = l.id
-            WHERE t.translation_unit_id = :unit_id
-            ORDER BY l.name ASC
-        ";
-
-        $translationsStmt = $this->db->prepare($translationsQuery);
-        $translationsStmt->bindParam(':unit_id', $id, PDO::PARAM_INT);
-        $translationsStmt->execute();
-
-        $translations = $translationsStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Combine unit and translations
-        $result = $unit;
-        $result['translations'] = $translations;
-
-        sendJsonResponse($result, 200, $this->db);
+        sendJsonResponse($unit, 200, $this->db);
     }
 
     /**
@@ -118,6 +109,8 @@ class TranslationsController extends BaseApiController
      */
     protected function handlePost(): void
     {
+        $this->initModel();
+
         // Check if we're adding a translation unit or a translation
         if (isset($this->requestBody['source_content'])) {
             $this->addTranslationUnit();
@@ -141,33 +134,21 @@ class TranslationsController extends BaseApiController
 
         $context = $this->requestBody['context'] ?? '';
 
-        // Insert the new translation unit
-        $stmt = $this->db->prepare(
-            "
-            INSERT INTO translation_units 
-                (source_content, context, status, created_by, created_at, updated_at) 
-            VALUES 
-                (:source_content, :context, 'active', :user_id, NOW(), NOW())
-        "
-        );
+        try {
+            // Use the model to add a new translation unit
+            $unitId = $this->translationModel->addTranslationUnit(
+                $this->requestBody['source_content'],
+                $context,
+                $this->userId
+            );
 
-        $stmt->bindParam(':source_content', $this->requestBody['source_content'], PDO::PARAM_STR);
-        $stmt->bindParam(':context', $context, PDO::PARAM_STR);
-        $stmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to create translation unit'], 500, $this->db);
-            return;
+            sendJsonResponse([
+                'message' => 'Translation unit created successfully',
+                'id' => $unitId
+            ], 201, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to create translation unit: ' . $e->getMessage()], 500, $this->db);
         }
-
-        $unitId = $this->db->lastInsertId();
-
-        sendJsonResponse([
-            'message' => 'Translation unit created successfully',
-            'id' => $unitId
-        ], 201, $this->db);
     }
 
     /**
@@ -207,46 +188,34 @@ class TranslationsController extends BaseApiController
             return;
         }
 
-        // Insert the new translation
-        $stmt = $this->db->prepare(
+        try {
+            // Use the model to add a new translation
+            $translationId = $this->translationModel->addTranslation(
+                $unitId,
+                $languageId,
+                $content,
+                $this->userId
+            );
+
+            // Update the translation unit's updated_at timestamp
+            $updateStmt = $this->db->prepare(
+                "
+                UPDATE translation_units 
+                SET updated_at = NOW(), created_by = :user_id 
+                WHERE id = :unit_id
             "
-            INSERT INTO translations 
-                (translation_unit_id, language_id, content, created_by, created_at, updated_at) 
-            VALUES 
-                (:unit_id, :language_id, :content, :user_id, NOW(), NOW())
-        "
-        );
+            );
+            $updateStmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
+            $updateStmt->bindParam(':unit_id', $unitId, PDO::PARAM_INT);
+            $updateStmt->execute();
 
-        $stmt->bindParam(':unit_id', $unitId, PDO::PARAM_INT);
-        $stmt->bindParam(':language_id', $languageId, PDO::PARAM_INT);
-        $stmt->bindParam(':content', $content, PDO::PARAM_STR);
-        $stmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to create translation'], 500, $this->db);
-            return;
+            sendJsonResponse([
+                'message' => 'Translation added successfully',
+                'id' => $translationId
+            ], 201, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to create translation: ' . $e->getMessage()], 500, $this->db);
         }
-
-        $translationId = $this->db->lastInsertId();
-
-        // Update the translation unit's updated_at timestamp
-        $updateStmt = $this->db->prepare(
-            "
-            UPDATE translation_units 
-            SET updated_at = NOW(), created_by = :user_id 
-            WHERE id = :unit_id
-        "
-        );
-        $updateStmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-        $updateStmt->bindParam(':unit_id', $unitId, PDO::PARAM_INT);
-        $updateStmt->execute();
-
-        sendJsonResponse([
-            'message' => 'Translation added successfully',
-            'id' => $translationId
-        ], 201, $this->db);
     }
 
     /**
@@ -254,6 +223,8 @@ class TranslationsController extends BaseApiController
      */
     protected function handlePut(): void
     {
+        $this->initModel();
+
         // Check what we're updating (unit or translation)
         if (isset($this->requestBody['source_content'])) {
             $this->updateTranslationUnit();
@@ -277,31 +248,23 @@ class TranslationsController extends BaseApiController
 
         $context = $this->requestBody['context'] ?? '';
 
-        // Update the translation unit
-        $stmt = $this->db->prepare(
-            "
-            UPDATE translation_units 
-            SET source_content = :source_content, 
-                context = :context, 
-                created_by = :user_id, 
-                updated_at = NOW() 
-            WHERE id = :id
-        "
-        );
+        try {
+            // Use the model to update the translation unit
+            $success = $this->translationModel->updateTranslationUnit(
+                $this->resourceId,
+                $this->requestBody['source_content'],
+                $context,
+                $this->userId
+            );
 
-        $stmt->bindParam(':source_content', $this->requestBody['source_content'], PDO::PARAM_STR);
-        $stmt->bindParam(':context', $context, PDO::PARAM_STR);
-        $stmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-        $stmt->bindParam(':id', $this->resourceId, PDO::PARAM_INT);
-
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to update translation unit'], 500, $this->db);
-            return;
+            if ($success) {
+                sendJsonResponse(['message' => 'Translation unit updated successfully'], 200, $this->db);
+            } else {
+                sendJsonResponse(['error' => 'Failed to update translation unit'], 500, $this->db);
+            }
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to update translation unit: ' . $e->getMessage()], 500, $this->db);
         }
-
-        sendJsonResponse(['message' => 'Translation unit updated successfully'], 200, $this->db);
     }
 
     /**
@@ -330,41 +293,34 @@ class TranslationsController extends BaseApiController
 
         $unitId = $result['translation_unit_id'];
 
-        // Update the translation
-        $stmt = $this->db->prepare(
-            "
-            UPDATE translations 
-            SET content = :content, 
-                created_by = :user_id, 
-                updated_at = NOW() 
-            WHERE id = :id
-        "
-        );
+        try {
+            // Use the model to update the translation
+            $success = $this->translationModel->updateTranslation(
+                $translationId,
+                $content,
+                $this->userId
+            );
 
-        $stmt->bindParam(':content', $content, PDO::PARAM_STR);
-        $stmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-        $stmt->bindParam(':id', $translationId, PDO::PARAM_INT);
+            if ($success) {
+                // Update the translation unit's updated_at timestamp
+                $updateStmt = $this->db->prepare(
+                    "
+                    UPDATE translation_units 
+                    SET updated_at = NOW(), created_by = :user_id 
+                    WHERE id = :unit_id
+                "
+                );
+                $updateStmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
+                $updateStmt->bindParam(':unit_id', $unitId, PDO::PARAM_INT);
+                $updateStmt->execute();
 
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to update translation'], 500, $this->db);
-            return;
+                sendJsonResponse(['message' => 'Translation updated successfully'], 200, $this->db);
+            } else {
+                sendJsonResponse(['error' => 'Failed to update translation'], 500, $this->db);
+            }
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to update translation: ' . $e->getMessage()], 500, $this->db);
         }
-
-        // Update the translation unit's updated_at timestamp
-        $updateStmt = $this->db->prepare(
-            "
-            UPDATE translation_units 
-            SET updated_at = NOW(), created_by = :user_id 
-            WHERE id = :unit_id
-        "
-        );
-        $updateStmt->bindParam(':user_id', $this->userId, PDO::PARAM_INT);
-        $updateStmt->bindParam(':unit_id', $unitId, PDO::PARAM_INT);
-        $updateStmt->execute();
-
-        sendJsonResponse(['message' => 'Translation updated successfully'], 200, $this->db);
     }
 
     /**
@@ -372,6 +328,8 @@ class TranslationsController extends BaseApiController
      */
     protected function handleDelete(): void
     {
+        $this->initModel();
+
         // Check if the translation unit exists
         if (!$this->resourceExists($this->resourceId, 'translation_units')) {
             sendJsonResponse(['error' => 'Translation unit not found'], 404, $this->db);

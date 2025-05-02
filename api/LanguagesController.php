@@ -1,12 +1,22 @@
 <?php
 
 require_once __DIR__ . '/BaseApiController.php';
+require_once __DIR__ . '/../src/Language.php';
+
+use Robert\CAT\Language;
 
 /**
  * LanguagesController - Handles API requests for languages
+ *
+ * Refactored to use the Language model for business logic
  */
 class LanguagesController extends BaseApiController
 {
+    /**
+     * @var Language
+     */
+    private Language $languageModel;
+
     /**
      * Define the regex pattern to extract language ID from URI
      */
@@ -16,10 +26,21 @@ class LanguagesController extends BaseApiController
     }
 
     /**
+     * Initialize the Language model
+     * This method is called from handler methods before processing any request
+     */
+    private function initModel(): void
+    {
+        $this->languageModel = new Language($this->db);
+    }
+
+    /**
      * Handle GET requests for languages
      */
     protected function handleGet(): void
     {
+        $this->initModel();
+
         if ($this->resourceId) {
             $this->getLanguageById($this->resourceId);
         } else {
@@ -34,11 +55,7 @@ class LanguagesController extends BaseApiController
      */
     private function getLanguageById(int $id): void
     {
-        $stmt = $this->db->prepare("SELECT * FROM languages WHERE id = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $language = $stmt->fetch(PDO::FETCH_ASSOC);
+        $language = $this->languageModel->getLanguageById($id);
 
         if (!$language) {
             sendJsonResponse(['error' => 'Language not found'], 404, $this->db);
@@ -55,36 +72,30 @@ class LanguagesController extends BaseApiController
     {
         // Get search filter if provided
         $search = $_GET['search'] ?? '';
-        $whereClause = '';
-        $params = [];
-
-        if (!empty($search)) {
-            $searchFields = [
-                'name' => $search,
-                'code' => $search
-            ];
-            $whereClause = $this->buildSearchWhereClause($searchFields, $params, 'OR');
-        }
 
         // Add filter for enabled languages if requested
         $enabled = isset($_GET['enabled']) ? filter_var($_GET['enabled'], FILTER_VALIDATE_BOOLEAN) : null;
-        if ($enabled !== null) {
-            $whereClause = empty($whereClause) ? "WHERE enabled = :enabled" : "$whereClause AND enabled = :enabled";
-            $params[':enabled'] = $enabled;
+
+        // Get pagination parameters
+        $pagination = getPaginationParams($_GET, 25);
+
+        try {
+            // Get total count
+            $totalCount = $this->languageModel->countLanguages($search, $enabled);
+
+            // Get language items for current page
+            $languages = $this->languageModel->getLanguages($search, $enabled);
+
+            // Build response with pagination info
+            $result = [
+                'data' => $languages,
+                'pagination' => formatPaginationInfo($pagination['page'], $pagination['perPage'], $totalCount)
+            ];
+
+            sendJsonResponse($result, 200, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to fetch languages: ' . $e->getMessage()], 500, $this->db);
         }
-
-        $baseQuery = "
-            SELECT l.*, 
-                   (SELECT COUNT(*) FROM translations WHERE language_id = l.id) AS translations_count
-            FROM languages l
-            $whereClause
-        ";
-
-        $countQuery = "SELECT COUNT(*) FROM languages $whereClause";
-
-        $result = $this->getPaginatedResults($baseQuery, $countQuery, $params, 'l.name ASC', 25);
-
-        sendJsonResponse($result, 200, $this->db);
     }
 
     /**
@@ -92,6 +103,8 @@ class LanguagesController extends BaseApiController
      */
     protected function handlePost(): void
     {
+        $this->initModel();
+
         // Validate required fields
         if (empty($this->requestBody['name']) || empty($this->requestBody['code'])) {
             sendJsonResponse(['error' => 'Name and code are required'], 400, $this->db);
@@ -99,47 +112,31 @@ class LanguagesController extends BaseApiController
         }
 
         // Check if language code already exists
-        $checkStmt = $this->db->prepare("SELECT id FROM languages WHERE code = :code");
-        $checkStmt->bindParam(':code', $this->requestBody['code'], PDO::PARAM_STR);
-        $checkStmt->execute();
-
-        if ($checkStmt->fetch()) {
+        if ($this->languageModel->languageCodeExists($this->requestBody['code'])) {
             sendJsonResponse(['error' => 'Language with this code already exists'], 409, $this->db);
             return;
         }
-
-        // Prepare insert statement
-        $stmt = $this->db->prepare(
-            "
-            INSERT INTO languages (code, name, is_rtl, enabled)
-            VALUES (:code, :name, :is_rtl, :enabled)
-        "
-        );
 
         // Set default values for optional fields
         $isRtl = isset($this->requestBody['is_rtl']) && (bool)$this->requestBody['is_rtl'];
         $enabled = !isset($this->requestBody['enabled']) || (bool)$this->requestBody['enabled'];
 
-        // Bind parameters
-        $stmt->bindParam(':code', $this->requestBody['code'], PDO::PARAM_STR);
-        $stmt->bindParam(':name', $this->requestBody['name'], PDO::PARAM_STR);
-        $stmt->bindParam(':is_rtl', $isRtl, PDO::PARAM_BOOL);
-        $stmt->bindParam(':enabled', $enabled, PDO::PARAM_BOOL);
+        try {
+            // Add the new language
+            $languageId = $this->languageModel->addLanguage(
+                $this->requestBody['code'],
+                $this->requestBody['name'],
+                $isRtl,
+                $enabled
+            );
 
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to create language'], 500, $this->db);
-            return;
+            sendJsonResponse([
+                'message' => 'Language created successfully',
+                'id' => $languageId
+            ], 201, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to create language: ' . $e->getMessage()], 500, $this->db);
         }
-
-        // Get the newly created language ID
-        $languageId = $this->db->lastInsertId();
-
-        sendJsonResponse([
-            'message' => 'Language created successfully',
-            'id' => $languageId
-        ], 201, $this->db);
     }
 
     /**
@@ -147,6 +144,8 @@ class LanguagesController extends BaseApiController
      */
     protected function handlePut(): void
     {
+        $this->initModel();
+
         // Check if the language exists
         if (!$this->resourceExists($this->resourceId, 'languages')) {
             sendJsonResponse(['error' => 'Language not found'], 404, $this->db);
@@ -162,63 +161,28 @@ class LanguagesController extends BaseApiController
 
         // Check if code is changed and already exists
         if (!empty($this->requestBody['code'])) {
-            $codeCheckStmt = $this->db->prepare("SELECT id FROM languages WHERE code = :code AND id != :id");
-            $codeCheckStmt->bindParam(':code', $this->requestBody['code'], PDO::PARAM_STR);
-            $codeCheckStmt->bindParam(':id', $this->resourceId, PDO::PARAM_INT);
-            $codeCheckStmt->execute();
-
-            if ($codeCheckStmt->fetch()) {
+            if ($this->languageModel->languageCodeExists($this->requestBody['code'], $this->resourceId)) {
                 sendJsonResponse(['error' => 'Another language with this code already exists'], 409, $this->db);
                 return;
             }
         }
 
-        // Build update SQL dynamically based on provided fields
-        $updateFields = [];
-        $params = [];
+        try {
+            // Update the language
+            $success = $this->languageModel->updateLanguage(
+                $this->resourceId,
+                $this->requestBody
+            );
 
-        if (!empty($this->requestBody['name'])) {
-            $updateFields[] = "name = :name";
-            $params[':name'] = $this->requestBody['name'];
-        }
-
-        if (!empty($this->requestBody['code'])) {
-            $updateFields[] = "code = :code";
-            $params[':code'] = $this->requestBody['code'];
-        }
-
-        if (isset($this->requestBody['is_rtl'])) {
-            $updateFields[] = "is_rtl = :is_rtl";
-            $params[':is_rtl'] = (bool)$this->requestBody['is_rtl'];
-        }
-
-        if (isset($this->requestBody['enabled'])) {
-            $updateFields[] = "enabled = :enabled";
-            $params[':enabled'] = (bool)$this->requestBody['enabled'];
-        }
-
-        $params[':id'] = $this->resourceId;
-
-        // Prepare and execute update statement
-        $sql = "UPDATE languages SET " . implode(', ', $updateFields) . " WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-
-        foreach ($params as $key => $value) {
-            if (is_bool($value)) {
-                $stmt->bindValue($key, $value, PDO::PARAM_BOOL);
-            } else {
-                $stmt->bindValue($key, $value);
+            if (!$success) {
+                sendJsonResponse(['error' => 'Failed to update language'], 500, $this->db);
+                return;
             }
+
+            sendJsonResponse(['message' => 'Language updated successfully'], 200, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to update language: ' . $e->getMessage()], 500, $this->db);
         }
-
-        $success = $stmt->execute();
-
-        if (!$success) {
-            sendJsonResponse(['error' => 'Failed to update language'], 500, $this->db);
-            return;
-        }
-
-        sendJsonResponse(['message' => 'Language updated successfully'], 200, $this->db);
     }
 
     /**
@@ -226,52 +190,44 @@ class LanguagesController extends BaseApiController
      */
     protected function handleDelete(): void
     {
+        $this->initModel();
+
         // Check if the language exists
         if (!$this->resourceExists($this->resourceId, 'languages')) {
             sendJsonResponse(['error' => 'Language not found'], 404, $this->db);
             return;
         }
 
-        // Check if the language is in use (has translations)
-        $checkUsageStmt = $this->db->prepare("SELECT COUNT(*) FROM translations WHERE language_id = :id");
-        $checkUsageStmt->bindParam(':id', $this->resourceId, PDO::PARAM_INT);
-        $checkUsageStmt->execute();
+        try {
+            // Check if the language is in use (has translations)
+            $translationsCount = $this->languageModel->countTranslations($this->resourceId);
 
-        $translationsCount = (int)$checkUsageStmt->fetchColumn();
+            if ($translationsCount > 0) {
+                // Soft delete (disable the language) if it has translations
+                $success = $this->languageModel->disableLanguage($this->resourceId);
 
-        if ($translationsCount > 0) {
-            // Soft delete (disable the language) if it has translations
-            $stmt = $this->db->prepare(
-                "
-                UPDATE languages 
-                SET enabled = FALSE
-                WHERE id = :id
-            "
-            );
-            $stmt->bindParam(':id', $this->resourceId, PDO::PARAM_INT);
-            $success = $stmt->execute();
+                if (!$success) {
+                    sendJsonResponse(['error' => 'Failed to disable language'], 500, $this->db);
+                    return;
+                }
 
-            if (!$success) {
-                sendJsonResponse(['error' => 'Failed to disable language'], 500, $this->db);
-                return;
+                sendJsonResponse([
+                    'message' => 'Language disabled successfully',
+                    'notes' => 'Language was disabled instead of deleted because it has associated translations'
+                ], 200, $this->db);
+            } else {
+                // Hard delete if the language has no translations
+                $success = $this->languageModel->deleteLanguage($this->resourceId);
+
+                if (!$success) {
+                    sendJsonResponse(['error' => 'Failed to delete language'], 500, $this->db);
+                    return;
+                }
+
+                sendJsonResponse(['message' => 'Language deleted successfully'], 200, $this->db);
             }
-
-            sendJsonResponse([
-                'message' => 'Language disabled successfully',
-                'notes' => 'Language was disabled instead of deleted because it has associated translations'
-            ], 200, $this->db);
-        } else {
-            // Hard delete if the language has no translations
-            $stmt = $this->db->prepare("DELETE FROM languages WHERE id = :id");
-            $stmt->bindParam(':id', $this->resourceId, PDO::PARAM_INT);
-            $success = $stmt->execute();
-
-            if (!$success) {
-                sendJsonResponse(['error' => 'Failed to delete language'], 500, $this->db);
-                return;
-            }
-
-            sendJsonResponse(['message' => 'Language deleted successfully'], 200, $this->db);
+        } catch (Exception $e) {
+            sendJsonResponse(['error' => 'Failed to delete language: ' . $e->getMessage()], 500, $this->db);
         }
     }
 }
