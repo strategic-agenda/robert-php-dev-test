@@ -1,3 +1,23 @@
+## Setup project and run development
+Requirements:
+- PHP 8.2 or higher
+- MySQL 5.7 or higher
+- NodeJS 22.x
+
+1. `composer install`
+2. Create `.env` file from `.env.example`
+3. Use `database/schema.sql` for your database schema
+4. Run Backend tests
+    -  `./vendor/bin/phpunit`
+5. Run backend
+    -  `php -S localhost:8000 index.php`
+6. cd frontend && `npm install`
+7. Run frontend tests
+    -  `npm run test`
+8. Run Frontend
+    -  `npm start`
+
+
 # robert-php-dev-test
 PHP Architect Test for Robert
 

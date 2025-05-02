@@ -1,0 +1,114 @@
+/* Import Tailwind CSS base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles can go below */
+@layer components {
+  /* Translation List Styles */
+  .translation-app {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4 p-4 max-w-7xl mx-auto;
+  }
+
+  .sidebar {
+    @apply bg-white rounded-lg shadow p-4 md:col-span-1 h-min;
+  }
+
+  .main-content {
+    @apply bg-white rounded-lg shadow p-4 md:col-span-2;
+  }
+
+  .new-unit-btn {
+    @apply bg-primary-600 text-white py-2 px-4 rounded hover:bg-primary-700 w-full mb-4;
+  }
+
+  .translation-units-list {
+    @apply divide-y divide-gray-200;
+  }
+
+  .unit-item {
+    @apply py-3 px-2 cursor-pointer hover:bg-gray-50;
+  }
+
+  .unit-item.selected {
+    @apply bg-primary-50 border-l-4 border-primary-500 pl-1;
+  }
+
+  .unit-content {
+    @apply font-medium text-gray-800 truncate;
+  }
+
+  .unit-meta {
+    @apply flex justify-between text-sm text-gray-500 mt-1;
+  }
+
+  /* Translation Form Styles */
+  .translation-form-container {
+    @apply space-y-6;
+  }
+
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-group label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500;
+  }
+
+  .form-group input.error,
+  .form-group select.error,
+  .form-group textarea.error {
+    @apply border-red-500;
+  }
+
+  .error-message {
+    @apply mt-1 text-sm text-red-600;
+  }
+
+  .form-actions {
+    @apply flex space-x-3 mt-6;
+  }
+
+  .submit-btn {
+    @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  .cancel-btn {
+    @apply inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  /* Translation View Styles */
+  .unit-header {
+    @apply flex justify-between items-center mb-4;
+  }
+
+  .edit-btn {
+    @apply bg-primary-600 text-white py-1 px-3 rounded text-sm hover:bg-primary-700;
+  }
+
+  .content-box {
+    @apply bg-gray-50 p-3 rounded-md border border-gray-200 mb-4;
+  }
+
+  .translations-list {
+    @apply space-y-4;
+  }
+
+  .translation-item {
+    @apply bg-gray-50 p-3 rounded-md border border-gray-200;
+  }
+
+  .translation-header {
+    @apply flex justify-between items-center mb-2;
+  }
+
+  .edit-translation-btn {
+    @apply text-primary-600 text-sm hover:text-primary-800;
+  }
+}
