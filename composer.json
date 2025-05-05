@@ -1,0 +1,19 @@
+{
+  "name": "medamine441/robert-php-dev-test",
+  "description": "translation units crud app",
+  "autoload": {
+    "psr-4": {
+      "Medamine441\\RobertPhpDevTest\\": "src/",
+      "Robert\\CAT\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "medamine441",
+      "email": "mehamdiamedamine@gmail.com"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  }
+}

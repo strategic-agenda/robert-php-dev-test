@@ -1,8 +1,310 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Robert\CAT\TranslationUnit;
 
 class TranslationUnitTest extends TestCase
 {
-    // Write tests for the TranslationUnit class.
+    /**
+     * Test creating a new translation unit
+     */
+    public function testCreateTranslationUnit()
+    {
+        $documentId = 1;
+        $sequenceNumber = 5;
+        $sourceContent = 'This is a test source content.';
+
+        $unit = new TranslationUnit($documentId, $sequenceNumber, $sourceContent);
+
+        $this->assertEquals($documentId, $unit->getDocumentId());
+        $this->assertEquals($sequenceNumber, $unit->getSequenceNumber());
+        $this->assertEquals($sourceContent, $unit->getSourceContent());
+        $this->assertNull($unit->getId());
+        $this->assertNull($unit->getContext());
+        $this->assertEmpty($unit->getTranslations());
+    }
+
+    /**
+     * Test setting and getting unit ID
+     */
+    public function testSetAndGetId()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test content');
+        $id = 42;
+
+        $this->assertNull($unit->getId());
+
+        $unit->setId($id);
+        $this->assertEquals($id, $unit->getId());
+    }
+
+    /**
+     * Test setting and getting context
+     */
+    public function testSetAndGetContext()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test content');
+        $context = 'This is some context for the translator.';
+
+        $this->assertNull($unit->getContext());
+
+        $unit->setContext($context);
+        $this->assertEquals($context, $unit->getContext());
+    }
+
+    /**
+     * Test setting source content with history tracking
+     */
+    public function testSetSourceContentWithHistory()
+    {
+        $originalContent = 'Original source content.';
+        $newContent = 'Updated source content.';
+
+        $unit = new TranslationUnit(1, 1, $originalContent);
+
+        // Update the source content
+        $unit->setSourceContent($newContent);
+
+        // Check if the content was updated
+        $this->assertEquals($newContent, $unit->getSourceContent());
+
+        // Check if history was recorded
+        $history = $unit->getHistory();
+        $this->assertCount(1, $history);
+        $this->assertEquals('source_content', $history[0]['field']);
+        $this->assertEquals($originalContent, $history[0]['old_value']);
+        $this->assertEquals($newContent, $history[0]['new_value']);
+    }
+
+    /**
+     * Test adding a new translation
+     */
+    public function testAddNewTranslation()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+        $languageId = 2;  // Spanish
+        $content = 'Contenido de prueba.';
+        $translatedBy = 5;  // User ID
+
+        $unit->addTranslation($languageId, $content, $translatedBy);
+
+        $translations = $unit->getTranslations();
+        $this->assertCount(1, $translations);
+        $this->assertArrayHasKey($languageId, $translations);
+        $this->assertEquals($content, $translations[$languageId]['content']);
+        $this->assertEquals($translatedBy, $translations[$languageId]['translated_by']);
+        $this->assertEquals('draft', $translations[$languageId]['status']);
+
+        // Check that we can retrieve the translation
+        $translation = $unit->getTranslation($languageId);
+        $this->assertNotNull($translation);
+        $this->assertEquals($content, $translation['content']);
+    }
+
+    /**
+     * Test updating an existing translation
+     */
+    public function testUpdateExistingTranslation()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+        $languageId = 2;
+        $originalContent = 'Original translation.';
+        $updatedContent = 'Updated translation.';
+        $translatedBy = 5;
+
+        // Add the original translation
+        $unit->addTranslation($languageId, $originalContent, $translatedBy);
+
+        // Update the translation
+        $unit->addTranslation($languageId, $updatedContent, $translatedBy);
+
+        // Check if the translation was updated
+        $translation = $unit->getTranslation($languageId);
+        $this->assertEquals($updatedContent, $translation['content']);
+
+        // Check if history was recorded
+        $history = $unit->getHistory();
+        $this->assertCount(1, $history);
+        $this->assertEquals('translation_' . $languageId, $history[0]['field']);
+        $this->assertEquals($originalContent, $history[0]['old_value']);
+        $this->assertEquals($updatedContent, $history[0]['new_value']);
+    }
+
+    /**
+     * Test updating translation status
+     */
+    public function testUpdateTranslationStatus()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+        $languageId = 2;
+        $content = 'Translated content.';
+        $translatedBy = 5;
+        $reviewedBy = 10;
+        $newStatus = 'reviewed';
+
+        // Add the translation
+        $unit->addTranslation($languageId, $content, $translatedBy);
+
+        // Update the status
+        $unit->updateTranslationStatus($languageId, $newStatus, $reviewedBy);
+
+        // Check if the status was updated
+        $translation = $unit->getTranslation($languageId);
+        $this->assertEquals($newStatus, $translation['status']);
+        $this->assertEquals($reviewedBy, $translation['reviewed_by']);
+    }
+
+    /**
+     * Test restoring from history
+     */
+    public function testRestoreFromHistory()
+    {
+        $originalContent = 'Original source content.';
+        $updatedContent = 'Updated source content.';
+
+        $unit = new TranslationUnit(1, 1, $originalContent);
+
+        // Update the source content to create history
+        $unit->setSourceContent($updatedContent);
+
+        // Restore from history
+        $result = $unit->restoreFromHistory(0);
+
+        // Check if restoration was successful
+        $this->assertTrue($result);
+        $this->assertEquals($originalContent, $unit->getSourceContent());
+    }
+
+    /**
+     * Test restoring a translation from history
+     */
+    public function testRestoreTranslationFromHistory()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+        $languageId = 2;
+        $originalContent = 'Original translation.';
+        $updatedContent = 'Updated translation.';
+        $translatedBy = 5;
+
+        // Add the original translation
+        $unit->addTranslation($languageId, $originalContent, $translatedBy);
+
+        // Update the translation to create history
+        $unit->addTranslation($languageId, $updatedContent, $translatedBy);
+
+        // Restore from history
+        $result = $unit->restoreFromHistory(0);
+
+        // Check if restoration was successful
+        $this->assertTrue($result);
+        $translation = $unit->getTranslation($languageId);
+        $this->assertEquals($originalContent, $translation['content']);
+    }
+
+    /**
+     * Test observer pattern implementation
+     */
+    public function testObserverPattern()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+
+        // Create a mock observer
+        /** @var \SplObserver&\PHPUnit\Framework\MockObject\MockObject $observer */
+        $observer = $this->createMock(\SplObserver::class);
+
+        // Set up expectations
+        $observer->expects($this->once())
+            ->method('update')
+            ->with($this->identicalTo($unit));
+
+        // Attach the observer
+        $unit->attach($observer);
+
+        // Trigger a notification
+        $unit->setSourceContent('Updated content.');
+    }
+
+    /**
+     * Test detaching an observer
+     */
+    public function testDetachObserver()
+    {
+        $unit = new TranslationUnit(1, 1, 'Test source content.');
+
+        // Create a mock observer
+        /** @var \SplObserver&\PHPUnit\Framework\MockObject\MockObject $observer */
+        $observer = $this->createMock(\SplObserver::class);
+
+        // Set up expectations - update should NOT be called
+        $observer->expects($this->never())
+            ->method('update');
+
+        // Attach and then detach the observer
+        $unit->attach($observer);
+        $unit->detach($observer);
+
+        // Trigger a notification
+        $unit->setSourceContent('Updated content.');
+    }
+
+    /**
+     * Test JSON serialization
+     */
+    public function testJsonSerialization()
+    {
+        $documentId = 1;
+        $sequenceNumber = 5;
+        $sourceContent = 'Test source content.';
+        $context = 'Test context.';
+        $id = 42;
+
+        $unit = new TranslationUnit($documentId, $sequenceNumber, $sourceContent);
+        $unit->setId($id);
+        $unit->setContext($context);
+
+        // Add a translation
+        $languageId = 2;
+        $content = 'Translated content.';
+        $translatedBy = 5;
+        $unit->addTranslation($languageId, $content, $translatedBy);
+
+        // Test JSON serialization
+        $json = json_encode($unit);
+        $data = json_decode($json, true);
+
+        $this->assertEquals($id, $data['id']);
+        $this->assertEquals($documentId, $data['document_id']);
+        $this->assertEquals($sequenceNumber, $data['sequence_number']);
+        $this->assertEquals($sourceContent, $data['source_content']);
+        $this->assertEquals($context, $data['context']);
+        $this->assertArrayHasKey('translations', $data);
+        $this->assertArrayHasKey($languageId, $data['translations']);
+        $this->assertEquals($content, $data['translations'][$languageId]['content']);
+    }
+
+    /**
+     * Test toArray method
+     */
+    public function testToArray()
+    {
+        $documentId = 1;
+        $sequenceNumber = 5;
+        $sourceContent = 'Test source content.';
+        $context = 'Test context.';
+        $id = 42;
+
+        $unit = new TranslationUnit($documentId, $sequenceNumber, $sourceContent);
+        $unit->setId($id);
+        $unit->setContext($context);
+
+        // Convert to array
+        $data = $unit->toArray();
+
+        $this->assertEquals($id, $data['id']);
+        $this->assertEquals($documentId, $data['document_id']);
+        $this->assertEquals($sequenceNumber, $data['sequence_number']);
+        $this->assertEquals($sourceContent, $data['source_content']);
+        $this->assertEquals($context, $data['context']);
+        $this->assertArrayHasKey('translations', $data);
+    }
 }
