@@ -22,7 +22,7 @@ export interface Translation {
 
 export interface TranslationResponse {
   success: boolean;
-  data: TranslationUnit | TranslationUnit[] | { message: string } | any;
+  data: TranslationUnit | TranslationUnit[] | { message: string };
 }
 
 export interface PaginationInfo {
@@ -164,21 +164,6 @@ const translationService = {
       return response.data.data as TranslationUnit;
     } catch (error) {
       console.error("Error updating translation status:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get translation history
-   */
-  getTranslationHistory: async (unitId: number): Promise<any[]> => {
-    try {
-      const response = await axios.get<TranslationResponse>(
-        `${API_URL}/${unitId}/history`
-      );
-      return (response.data.data as any).history || [];
-    } catch (error) {
-      console.error("Error fetching translation history:", error);
       throw error;
     }
   },

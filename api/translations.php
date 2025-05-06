@@ -145,19 +145,6 @@ function handleGetRequest(array $pathParams, array $queryParams, TranslationUnit
         return;
     }
 
-    // GET /api/translations/{id}/history - Get history for a unit
-    if (count($pathParams) === 2 && is_numeric($pathParams[0]) && $pathParams[1] === 'history') {
-        $id = (int)$pathParams[0];
-        $unit = $repository->findById($id);
-
-        if ($unit) {
-            respondWithSuccess(['history' => $unit->getHistory()]);
-        } else {
-            respondWithError('Translation unit not found', 404);
-        }
-        return;
-    }
-
     respondWithError('Endpoint not found', 404);
 }
 

@@ -105,13 +105,13 @@ const App: React.FC = () => {
         </Col>
       </Row>
 
-      {selectedDocument && targetLanguage && (
+      {selectedDocument && targetLanguage ? (
         <TranslationList
           documentId={selectedDocument}
           targetLanguageId={targetLanguage}
           currentUserId={currentUserId}
         />
-      )}
+      ) : null}
 
       {(!selectedDocument || !targetLanguage) && (
         <div className="alert alert-info">

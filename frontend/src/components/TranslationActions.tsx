@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Modal, Form, Alert } from "react-bootstrap";
 import translationService, {
   type TranslationUnit,
-} from "../services/translationService";
+} from "@/services/translationService";
 
 interface TranslationActionsProps {
   documentId: number;
@@ -93,11 +93,6 @@ const TranslationActions: React.FC<TranslationActionsProps> = ({
       setError("Error deleting translation unit. Please try again.");
       console.error(err);
     }
-  };
-
-  const openDeleteModal = (unitId: number) => {
-    setUnitIdToDelete(unitId);
-    setShowDeleteModal(true);
   };
 
   return (

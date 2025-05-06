@@ -4,11 +4,9 @@ import { Button, Table, Pagination, Spinner, Badge } from "react-bootstrap";
 import translationService, {
   type TranslationUnit,
   type PaginationInfo,
-} from "../services/translationService";
+} from "@/services/translationService";
 import TranslationForm from "./TranslationForm";
-import TranslationActions from "../translation-units/TranslationActions";
-import BulkOperations from "../translation-units/BulkOperations";
-import TranslationExport from "../translation-units/TranslationExport";
+import TranslationActions from "./TranslationActions";
 
 interface TranslationListProps {
   documentId: number;
@@ -155,23 +153,7 @@ const TranslationList: React.FC<TranslationListProps> = ({
             onUnitDeleted={fetchTranslationUnits}
           />
         </div>
-
-        <div>
-          {/* Add TranslationExport component */}
-          <TranslationExport
-            documentId={documentId}
-            targetLanguageId={targetLanguageId}
-          />
-        </div>
       </div>
-
-      {/* Add the BulkOperations component */}
-      <BulkOperations
-        documentId={documentId}
-        targetLanguageId={targetLanguageId}
-        currentUserId={currentUserId}
-        onOperationComplete={fetchTranslationUnits}
-      />
 
       <Table striped bordered hover>
         <thead>

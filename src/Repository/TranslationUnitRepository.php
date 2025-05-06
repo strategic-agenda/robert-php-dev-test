@@ -84,9 +84,6 @@ class TranslationUnitRepository implements TranslationUnitRepositoryInterface
 
         // Save translations
         $this->saveTranslations($unit);
-
-        // Save history
-        $this->saveHistory($unit);
     }
 
     /**
@@ -196,82 +193,6 @@ class TranslationUnitRepository implements TranslationUnitRepositoryInterface
                 ]);
             }
         }
-    }
-
-    /**
-     * Save history entries for a unit
-     * 
-     * @param TranslationUnit $unit
-     * @return void
-     */
-    private function saveHistory(TranslationUnit $unit): void
-    {
-        $history = $unit->getHistory();
-        $versionCounter = $this->getNextVersionNumber($unit->getId());
-
-        foreach ($history as $entry) {
-            // Skip entries that were already saved
-            if (isset($entry['saved']) && $entry['saved']) {
-                continue;
-            }
-
-            // Handle translation history
-            if (strpos($entry['field'], 'translation_') === 0) {
-                $languageId = (int)substr($entry['field'], 12);
-
-                // Get translation ID
-                $stmt = $this->pdo->prepare(
-                    "SELECT id FROM translations 
-                     WHERE translation_unit_id = :unit_id AND language_id = :language_id"
-                );
-                $stmt->execute([
-                    'unit_id' => $unit->getId(),
-                    'language_id' => $languageId
-                ]);
-
-                $translationId = $stmt->fetchColumn();
-
-                if ($translationId) {
-                    $stmt = $this->pdo->prepare(
-                        "INSERT INTO translation_versions 
-                         (translation_id, version_number, content, status, modified_by, comment) 
-                         VALUES (:translation_id, :version_number, :content, :status, :modified_by, :comment)"
-                    );
-
-                    $stmt->execute([
-                        'translation_id' => $translationId,
-                        'version_number' => $versionCounter++,
-                        'content' => $entry['old_value'],
-                        'status' => $entry['metadata']['status'] ?? 'draft',
-                        'modified_by' => $entry['metadata']['translated_by'] ?? 1,
-                        'comment' => $entry['metadata']['comment'] ?? 'Automatic version'
-                    ]);
-
-                    // Mark as saved
-                    $entry['saved'] = true;
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the next version number for history entries
-     * 
-     * @param int $unitId
-     * @return int
-     */
-    private function getNextVersionNumber(int $unitId): int
-    {
-        $stmt = $this->pdo->prepare(
-            "SELECT MAX(version_number) 
-             FROM translation_versions 
-             JOIN translations ON translation_versions.translation_id = translations.id 
-             WHERE translations.translation_unit_id = :unit_id"
-        );
-        $stmt->execute(['unit_id' => $unitId]);
-
-        $maxVersion = $stmt->fetchColumn();
-        return $maxVersion ? (int)$maxVersion + 1 : 1;
     }
 
     /**

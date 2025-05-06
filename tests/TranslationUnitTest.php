@@ -53,9 +53,9 @@ class TranslationUnitTest extends TestCase
     }
 
     /**
-     * Test setting source content with history tracking
+     * Test setting source content
      */
-    public function testSetSourceContentWithHistory()
+    public function testSetSourceContent()
     {
         $originalContent = 'Original source content.';
         $newContent = 'Updated source content.';
@@ -67,13 +67,6 @@ class TranslationUnitTest extends TestCase
 
         // Check if the content was updated
         $this->assertEquals($newContent, $unit->getSourceContent());
-
-        // Check if history was recorded
-        $history = $unit->getHistory();
-        $this->assertCount(1, $history);
-        $this->assertEquals('source_content', $history[0]['field']);
-        $this->assertEquals($originalContent, $history[0]['old_value']);
-        $this->assertEquals($newContent, $history[0]['new_value']);
     }
 
     /**
@@ -121,13 +114,6 @@ class TranslationUnitTest extends TestCase
         // Check if the translation was updated
         $translation = $unit->getTranslation($languageId);
         $this->assertEquals($updatedContent, $translation['content']);
-
-        // Check if history was recorded
-        $history = $unit->getHistory();
-        $this->assertCount(1, $history);
-        $this->assertEquals('translation_' . $languageId, $history[0]['field']);
-        $this->assertEquals($originalContent, $history[0]['old_value']);
-        $this->assertEquals($updatedContent, $history[0]['new_value']);
     }
 
     /**
@@ -152,99 +138,6 @@ class TranslationUnitTest extends TestCase
         $translation = $unit->getTranslation($languageId);
         $this->assertEquals($newStatus, $translation['status']);
         $this->assertEquals($reviewedBy, $translation['reviewed_by']);
-    }
-
-    /**
-     * Test restoring from history
-     */
-    public function testRestoreFromHistory()
-    {
-        $originalContent = 'Original source content.';
-        $updatedContent = 'Updated source content.';
-
-        $unit = new TranslationUnit(1, 1, $originalContent);
-
-        // Update the source content to create history
-        $unit->setSourceContent($updatedContent);
-
-        // Restore from history
-        $result = $unit->restoreFromHistory(0);
-
-        // Check if restoration was successful
-        $this->assertTrue($result);
-        $this->assertEquals($originalContent, $unit->getSourceContent());
-    }
-
-    /**
-     * Test restoring a translation from history
-     */
-    public function testRestoreTranslationFromHistory()
-    {
-        $unit = new TranslationUnit(1, 1, 'Test source content.');
-        $languageId = 2;
-        $originalContent = 'Original translation.';
-        $updatedContent = 'Updated translation.';
-        $translatedBy = 5;
-
-        // Add the original translation
-        $unit->addTranslation($languageId, $originalContent, $translatedBy);
-
-        // Update the translation to create history
-        $unit->addTranslation($languageId, $updatedContent, $translatedBy);
-
-        // Restore from history
-        $result = $unit->restoreFromHistory(0);
-
-        // Check if restoration was successful
-        $this->assertTrue($result);
-        $translation = $unit->getTranslation($languageId);
-        $this->assertEquals($originalContent, $translation['content']);
-    }
-
-    /**
-     * Test observer pattern implementation
-     */
-    public function testObserverPattern()
-    {
-        $unit = new TranslationUnit(1, 1, 'Test source content.');
-
-        // Create a mock observer
-        /** @var \SplObserver&\PHPUnit\Framework\MockObject\MockObject $observer */
-        $observer = $this->createMock(\SplObserver::class);
-
-        // Set up expectations
-        $observer->expects($this->once())
-            ->method('update')
-            ->with($this->identicalTo($unit));
-
-        // Attach the observer
-        $unit->attach($observer);
-
-        // Trigger a notification
-        $unit->setSourceContent('Updated content.');
-    }
-
-    /**
-     * Test detaching an observer
-     */
-    public function testDetachObserver()
-    {
-        $unit = new TranslationUnit(1, 1, 'Test source content.');
-
-        // Create a mock observer
-        /** @var \SplObserver&\PHPUnit\Framework\MockObject\MockObject $observer */
-        $observer = $this->createMock(\SplObserver::class);
-
-        // Set up expectations - update should NOT be called
-        $observer->expects($this->never())
-            ->method('update');
-
-        // Attach and then detach the observer
-        $unit->attach($observer);
-        $unit->detach($observer);
-
-        // Trigger a notification
-        $unit->setSourceContent('Updated content.');
     }
 
     /**

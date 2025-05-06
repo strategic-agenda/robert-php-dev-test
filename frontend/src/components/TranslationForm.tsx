@@ -4,8 +4,7 @@ import { Form, Button, Card, Alert, Row, Col } from "react-bootstrap";
 import translationService, {
   type Translation,
   type TranslationUnit,
-} from "../services/translationService";
-import TranslationHistory from "@/translation-units/TranslationHistory";
+} from "@/services/translationService";
 
 interface TranslationFormProps {
   unit: TranslationUnit;
@@ -26,7 +25,6 @@ const TranslationForm: React.FC<TranslationFormProps> = ({
   const [translationStatus, setTranslationStatus] = useState<string>("draft");
   const [isReviewer, setIsReviewer] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showHistory, setShowHistory] = useState<boolean>(false);
 
   useEffect(() => {
     // Initialize form with existing translation if available
@@ -60,7 +58,6 @@ const TranslationForm: React.FC<TranslationFormProps> = ({
           status: translationStatus as Translation["status"],
           reviewed_by:
             translationStatus !== "draft" ? currentUserId : undefined,
-          updated_at: new Date().toISOString(),
         };
 
         updatedUnit.translations = {
@@ -97,8 +94,6 @@ const TranslationForm: React.FC<TranslationFormProps> = ({
           translated_by: currentUserId,
           reviewed_by:
             translationStatus !== "draft" ? currentUserId : undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         };
 
         updatedUnit.translations = {
@@ -114,13 +109,9 @@ const TranslationForm: React.FC<TranslationFormProps> = ({
     }
   };
 
-  const toggleHistory = () => {
-    setShowHistory(!showHistory);
-  };
-
   return (
     <Row>
-      <Col md={showHistory ? 7 : 12}>
+      <Col md={12}>
         <Card className="mb-4">
           <Card.Header>
             {unit.translations[targetLanguageId]
@@ -178,35 +169,11 @@ const TranslationForm: React.FC<TranslationFormProps> = ({
                     Cancel
                   </Button>
                 </div>
-
-                {unit.id && unit.translations[targetLanguageId] && (
-                  <Button
-                    variant="outline-info"
-                    onClick={toggleHistory}
-                    size="sm"
-                  >
-                    {showHistory ? "Hide History" : "Show History"}
-                  </Button>
-                )}
               </div>
             </Form>
           </Card.Body>
         </Card>
       </Col>
-
-      {showHistory && (
-        <Col md={5}>
-          <Card>
-            <Card.Body>
-              <TranslationHistory
-                unitId={unit.id!}
-                targetLanguageId={targetLanguageId}
-                onClose={toggleHistory}
-              />
-            </Card.Body>
-          </Card>
-        </Col>
-      )}
     </Row>
   );
 };
