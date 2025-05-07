@@ -95,7 +95,7 @@ class TranslationUnitController
         }
 
         try {
-            $unit->updateTranslation($data['targetText']);
+            $unit->setTargetText($data['targetText']);
             $this->repository->update($unit);
             return $response->withStatus(204);
         } catch (\Exception $e) {
