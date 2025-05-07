@@ -31,7 +31,7 @@ class TranslationUnitController
     public function get(Request $request, Response $response, array $args): Response
     {
         $unit = $this->repository->findById((int) $args['id']);
-        
+
         if (!$unit) {
             return $response->withStatus(404);
         }
@@ -65,7 +65,7 @@ class TranslationUnitController
             );
 
             $id = $this->repository->create($unit);
-            
+
             $response->getBody()->write(json_encode(['id' => $id]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
@@ -80,7 +80,7 @@ class TranslationUnitController
     public function update(Request $request, Response $response, array $args): Response
     {
         $unit = $this->repository->findById((int) $args['id']);
-        
+
         if (!$unit) {
             return $response->withStatus(404);
         }
@@ -109,7 +109,6 @@ class TranslationUnitController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        // Implementation for delete operation
         return $response->withStatus(204);
     }
-} 
+}
