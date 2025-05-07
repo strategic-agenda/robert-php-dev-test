@@ -17,26 +17,28 @@ composer install
 3. Create a `.env` file in the root directory with the following content:
 ```
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=3306
 DB_NAME=translation_db
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
+DB_USER=root
+DB_PASSWORD=your_password
 ```
 
 4. Create the database and run migrations:
 ```bash
 # Create the database
-createdb translation_db
+mysql -u root -p -e "CREATE DATABASE translation_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Import the schema
-psql translation_db < database/schema.sql
+mysql -u root -p translation_db < database/schema.sql
 ```
 
 5. Start the development server:
 ```bash
 php -S localhost:8000 -t public
+```
 
-
+6. Start the frontend development server:
+```bash
 cd frontend
 npm install
 npm start

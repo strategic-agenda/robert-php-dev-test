@@ -42,12 +42,13 @@ $app->addErrorMiddleware(true, true, true);
 // Configure database connection
 $container->set('db', function() {
     return DriverManager::getConnection([
-        'driver' => 'pdo_pgsql',
+        'driver' => 'pdo_mysql',
         'host' => $_ENV['DB_HOST'] ?? 'localhost',
-        'port' => $_ENV['DB_PORT'] ?? '5432',
+        'port' => $_ENV['DB_PORT'] ?? '3306',
         'dbname' => $_ENV['DB_NAME'] ?? 'translation_db',
-        'user' => $_ENV['DB_USER'] ?? 'postgres',
-        'password' => $_ENV['DB_PASSWORD'] ?? 'postgres',
+        'user' => $_ENV['DB_USER'] ?? 'root',
+        'password' => $_ENV['DB_PASSWORD'] ?? '',
+        'charset' => 'utf8mb4'
     ]);
 });
 

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Model\TranslationUnit;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 
 class TranslationUnitRepository
 {
@@ -19,12 +20,25 @@ class TranslationUnitRepository
         $data = $unit->toArray();
         unset($data['id'], $data['history']);
 
-        $this->connection->insert('translation_units', $data);
+        // Map camelCase properties to snake_case database columns
+        $dbData = [
+            'source_text' => $data['sourceText'],
+            'target_text' => $data['targetText'],
+            'source_language' => $data['sourceLanguage'],
+            'target_language' => $data['targetLanguage'],
+            'created_at' => $data['createdAt'],
+            'updated_at' => $data['updatedAt']
+        ];
+
+        $this->connection->insert('translation_units', $dbData);
         $id = (int) $this->connection->lastInsertId();
         $unit->setId($id);
         return $id;
     }
 
+    /**
+     * @throws Exception
+     */
     public function findById(int $id): ?TranslationUnit
     {
         $data = $this->connection->fetchAssociative(
@@ -63,14 +77,24 @@ class TranslationUnitRepository
         $id = $data['id'];
         unset($data['id'], $data['history']);
 
+        // Map camelCase properties to snake_case database columns
+        $dbData = [
+            'source_text' => $data['sourceText'],
+            'target_text' => $data['targetText'],
+            'source_language' => $data['sourceLanguage'],
+            'target_language' => $data['targetLanguage'],
+            'updated_at' => $data['updatedAt']
+        ];
+
         $this->connection->update(
             'translation_units',
-            $data,
+            $dbData,
             ['id' => $id]
         );
 
         // Save history entry
-        $lastHistoryEntry = end($unit->getHistory());
+        $array = $unit->getHistory();
+        $lastHistoryEntry = end($array);
         if ($lastHistoryEntry) {
             $this->connection->insert('translation_history', [
                 'unit_id' => $id,
@@ -80,12 +104,19 @@ class TranslationUnitRepository
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function findAll(int $limit = 10, int $offset = 0): array
     {
-        $data = $this->connection->fetchAllAssociative(
-            'SELECT * FROM translation_units ORDER BY created_at DESC LIMIT ? OFFSET ?',
-            [$limit, $offset]
-        );
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('*')
+           ->from('translation_units')
+           ->orderBy('created_at', 'DESC')
+           ->setMaxResults($limit)
+           ->setFirstResult($offset);
+
+        $data = $qb->executeQuery()->fetchAllAssociative();
 
         $units = [];
         foreach ($data as $row) {
@@ -101,4 +132,4 @@ class TranslationUnitRepository
 
         return $units;
     }
-} 
+}
