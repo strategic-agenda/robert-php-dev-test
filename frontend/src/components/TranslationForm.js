@@ -48,46 +48,56 @@ function TranslationForm({ unit, onSubmit, onCancel }) {
 
   return (
     <div className="translation-form">
-      <h2>{isEditing ? 'Edit Translation Unit' : 'Add New Translation Unit'}</h2>
+      <h2>
+        {isEditing ? 'Edit Translation' : 'Add New Translation'}
+      </h2>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="sourceLanguage">Source Language</label>
-          <select
-            id="sourceLanguage"
-            name="sourceLanguage"
-            value={formData.sourceLanguage}
-            onChange={handleChange}
-            disabled={isEditing}
-            required
-          >
-            {languages.map(lang => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="sourceLanguage">
+              Source Language
+            </label>
+            <select
+              id="sourceLanguage"
+              name="sourceLanguage"
+              value={formData.sourceLanguage}
+              onChange={handleChange}
+              disabled={isEditing}
+              required
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="targetLanguage">
+              Target Language
+            </label>
+            <select
+              id="targetLanguage"
+              name="targetLanguage"
+              value={formData.targetLanguage}
+              onChange={handleChange}
+              disabled={isEditing}
+              required
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="targetLanguage">Target Language</label>
-          <select
-            id="targetLanguage"
-            name="targetLanguage"
-            value={formData.targetLanguage}
-            onChange={handleChange}
-            disabled={isEditing}
-            required
-          >
-            {languages.map(lang => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="sourceText">Source Text</label>
+          <label htmlFor="sourceText">
+            Source Text
+          </label>
           <textarea
             id="sourceText"
             name="sourceText"
@@ -95,17 +105,21 @@ function TranslationForm({ unit, onSubmit, onCancel }) {
             onChange={handleChange}
             disabled={isEditing}
             required
+            placeholder="Enter the original text to translate"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="targetText">Target Text</label>
+          <label htmlFor="targetText">
+            Target Text
+          </label>
           <textarea
             id="targetText"
             name="targetText"
             value={formData.targetText}
             onChange={handleChange}
             required
+            placeholder="Enter the translated text"
           />
         </div>
 
@@ -114,7 +128,7 @@ function TranslationForm({ unit, onSubmit, onCancel }) {
             Cancel
           </button>
           <button type="submit" className="submit-button">
-            {isEditing ? 'Update' : 'Add'}
+            {isEditing ? 'Save Changes' : 'Create Translation'}
           </button>
         </div>
       </form>

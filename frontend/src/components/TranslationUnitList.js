@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function TranslationUnitList({ units, onEdit }) {
+function TranslationUnitList({ units, onEdit, onDelete }) {
   const [languages, setLanguages] = useState({});
   const [loading, setLoading] = useState(true);
+  const [historyModal, setHistoryModal] = useState({
+    isOpen: false,
+    unitId: null,
+    history: []
+  });
 
   useEffect(() => {
     // Fetch languages from the API
@@ -30,43 +35,144 @@ function TranslationUnitList({ units, onEdit }) {
   }
   
   if (!units.length) {
-    return <div className="no-units">No translation units available</div>;
+    return <div className="no-units">
+      <h3>No Translation Units Available</h3>
+      <p>Create your first translation unit by clicking the "Add New Translation Unit" button above.</p>
+    </div>;
   }
 
   const getLanguageName = (code) => {
     return languages[code] || code;
   };
 
+  const formatDate = (dateString) => {
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
+  const showHistoryModal = (unitId, unit) => {
+    setHistoryModal({
+      isOpen: true,
+      unitId,
+      history: unit.history || [],
+      sourceText: unit.sourceText,
+      sourceLanguage: getLanguageName(unit.sourceLanguage),
+      targetLanguage: getLanguageName(unit.targetLanguage)
+    });
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryModal({
+      isOpen: false,
+      unitId: null,
+      history: []
+    });
+  };
+
   return (
     <div className="translation-units">
-      {units.map(unit => (
-        <div key={unit.id} className="translation-unit">
-          <div className="unit-header">
-            <span className="unit-id">ID: {unit.id}</span>
-            <button className="edit-button" onClick={() => onEdit(unit)}>Edit</button>
-          </div>
-          <div className="source-text">
-            <h3>Source Text ({getLanguageName(unit.sourceLanguage)})</h3>
-            <p>{unit.sourceText}</p>
-          </div>
-          <div className="target-text">
-            <h3>Target Text ({getLanguageName(unit.targetLanguage)})</h3>
-            <p>{unit.targetText}</p>
-          </div>
-          {unit.history && unit.history.length > 0 && (
-            <div className="history">
-              <h4>History</h4>
-              <ul>
-                {unit.history.map((entry, index) => (
-                  <li key={index}>
-                    {entry.target_text} <span className="timestamp">(Updated: {entry.updated_at})</span>
-                  </li>
-                ))}
-              </ul>
+      <h2 className="section-title">Translation Units ({units.length})</h2>
+      
+      <table className="units-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Source Language</th>
+            <th>Source Text</th>
+            <th>Target Language</th>
+            <th>Target Text</th>
+            <th>History</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {units.map(unit => (
+            <tr key={unit.id}>
+              <td>{unit.id}</td>
+              <td>{getLanguageName(unit.sourceLanguage)}</td>
+              <td className="text-cell">{unit.sourceText}</td>
+              <td>{getLanguageName(unit.targetLanguage)}</td>
+              <td className="text-cell">{unit.targetText}</td>
+              <td>
+                {unit.history && unit.history.length > 0 ? (
+                  <button 
+                    className="history-button" 
+                    onClick={() => showHistoryModal(unit.id, unit)}
+                  >
+                    Show History
+                  </button>
+                ) : (
+                  <span className="no-history">None</span>
+                )}
+              </td>
+              <td>
+                <div className="table-actions">
+                  <button className="edit-button" onClick={() => onEdit(unit)}>
+                    Edit
+                  </button>
+                  <button className="delete-button" onClick={() => onDelete(unit.id)}>
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+      {/* History Modal */}
+      {historyModal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal history-modal">
+            <div className="modal-header">
+              <h2>Translation History ({historyModal.history.length} {historyModal.history.length === 1 ? 'version' : 'versions'})</h2>
             </div>
-          )}
+            <div className="modal-body">
+              <div className="history-context">
+                <div className="context-item">
+                  <span className="context-label">Source Language:</span>
+                  <span className="context-value">{historyModal.sourceLanguage}</span>
+                </div>
+                <div className="context-item">
+                  <span className="context-label">Target Language:</span>
+                  <span className="context-value">{historyModal.targetLanguage}</span>
+                </div>
+                <div className="context-item source-context">
+                  <span className="context-label">Source Text:</span>
+                  <div className="context-value">{historyModal.sourceText}</div>
+                </div>
+              </div>
+              <table className="history-table">
+                <thead>
+                  <tr>
+                    <th>Previous Translation</th>
+                    <th>Updated At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyModal.history.map((entry, index) => (
+                    <tr key={index}>
+                      <td>{entry.target_text}</td>
+                      <td>{formatDate(entry.updated_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-button" onClick={closeHistoryModal}>
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }

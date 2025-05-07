@@ -3,6 +3,7 @@ import axios from 'axios';
 import './App.css';
 import TranslationUnitList from './components/TranslationUnitList';
 import TranslationForm from './components/TranslationForm';
+import ConfirmationModal from './components/ConfirmationModal';
 
 function App() {
   const [units, setUnits] = useState([]);
@@ -10,6 +11,10 @@ function App() {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingUnit, setEditingUnit] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState({
+    isOpen: false,
+    unitId: null
+  });
 
   useEffect(() => {
     fetchUnits();
@@ -54,6 +59,27 @@ function App() {
     setEditingUnit(null);
   };
 
+  const handleDeleteClick = (unitId) => {
+    setConfirmDelete({
+      isOpen: true,
+      unitId
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/units/${confirmDelete.unitId}`);
+      setUnits(units.filter(unit => unit.id !== confirmDelete.unitId));
+      setConfirmDelete({ isOpen: false, unitId: null });
+    } catch (err) {
+      setError('Failed to delete translation unit');
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDelete({ isOpen: false, unitId: null });
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -86,7 +112,19 @@ function App() {
           />
         )}
 
-        <TranslationUnitList units={units} onEdit={handleEdit} />
+        <TranslationUnitList 
+          units={units} 
+          onEdit={handleEdit} 
+          onDelete={handleDeleteClick} 
+        />
+
+        <ConfirmationModal
+          isOpen={confirmDelete.isOpen}
+          title="Delete Translation Unit"
+          message="Are you sure you want to delete this translation unit? This action cannot be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
       </main>
     </div>
   );

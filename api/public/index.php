@@ -124,7 +124,7 @@ if (isset($requestParts[0]) && $requestParts[0] === 'api') {
                     exit;
                 }
                 
-                // TODO: Implement delete method in TranslationUnit class
+                $unit->delete();
                 
                 http_response_code(204); // No content
             } else {

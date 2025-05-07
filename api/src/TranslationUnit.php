@@ -183,4 +183,26 @@ class TranslationUnit {
             'history' => $this->getHistory()
         ];
     }
+
+    public function delete() {
+        $db = Database::getInstance()->getConnection();
+        
+        // First delete history records
+        $stmt = $db->prepare("
+            DELETE FROM translation_history 
+            WHERE translation_unit_id = ?
+        ");
+        
+        $stmt->execute([$this->id]);
+        
+        // Then delete the unit itself
+        $stmt = $db->prepare("
+            DELETE FROM translation_units 
+            WHERE id = ?
+        ");
+        
+        $stmt->execute([$this->id]);
+        
+        return true;
+    }
 } 
