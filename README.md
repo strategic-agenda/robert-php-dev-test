@@ -1,12 +1,6 @@
 # robert-php-dev-test
 PHP Architect Test for Robert
 
-### What is Robert?
-Robert is an innovative Computer-Assisted Translation (CAT) tool crafted to streamline translation tasks, enhancing the speed and efficiency of translators. By uploading the source document into the application, the interface intelligently segments it into translation units—be they phrases, sentences, or paragraphs—facilitating a smoother translation process.
-
-### What are the units of translation?
-In the field of translation, a translation unit is a segment of a text which the translator treats as a single cognitive unit for the purposes of establishing an equivalence. It may be a single word, a phrase, one or more sentences, or even a larger unit.
-
 ## Setup Instructions
 
 1. Clone the repository:
