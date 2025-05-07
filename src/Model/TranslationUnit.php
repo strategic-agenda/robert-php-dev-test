@@ -25,6 +25,12 @@ class TranslationUnit
         $this->targetLanguage = $targetLanguage;
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        
+        // Initialize history with the initial target text
+        $this->history[] = [
+            'targetText' => $targetText,
+            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s')
+        ];
     }
 
     public function setId(int $id): void
@@ -64,22 +70,23 @@ class TranslationUnit
 
     public function addHistoryEntry(string $targetText, string $createdAt): void
     {
-        $this->history[] = [
+        array_unshift($this->history, [
             'targetText' => $targetText,
             'updatedAt' => $createdAt
-        ];
+        ]);
     }
 
-    public function updateTranslation(string $newTargetText): void
+    public function setTargetText(string $newTargetText): void
     {
-        // Add current translation to history
-        $this->history[] = [
-            'targetText' => $this->targetText,
+        $this->updatedAt = new \DateTime();
+        
+        // Add the new translation to history
+        array_unshift($this->history, [
+            'targetText' => $newTargetText,
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s')
-        ];
+        ]);
 
         $this->targetText = $newTargetText;
-        $this->updatedAt = new \DateTime();
     }
 
     public function toArray(): array
