@@ -6,11 +6,12 @@ function TranslationForm({ unit, onSubmit, onCancel }) {
   const [languages, setLanguages] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Handle both camelCase and snake_case property names from the API
   const [formData, setFormData] = useState({
-    sourceText: unit?.sourceText || '',
-    targetText: unit?.targetText || '',
-    sourceLanguage: unit?.sourceLanguage || 'en',
-    targetLanguage: unit?.targetLanguage || 'fr'
+    sourceText: unit?.sourceText || unit?.source_text || '',
+    targetText: unit?.targetText || unit?.target_text || '',
+    sourceLanguage: unit?.sourceLanguage || unit?.source_language || 'en',
+    targetLanguage: unit?.targetLanguage || unit?.target_language || 'fr'
   });
 
   useEffect(() => {

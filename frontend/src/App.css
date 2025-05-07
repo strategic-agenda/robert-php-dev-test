@@ -128,14 +128,21 @@ body {
   margin: 0 auto;
 }
 
+/* Table Responsive Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
 /* Table Styles */
 .units-table, 
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 30px;
   background-color: var(--card-color);
-  box-shadow: 0 4px 12px var(--shadow-color);
   border-radius: 10px;
   overflow: hidden;
 }

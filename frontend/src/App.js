@@ -23,9 +23,11 @@ function App() {
   const fetchUnits = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/units');
-      setUnits(response.data);
+      const unitsData = Array.isArray(response.data) ? response.data : [];
+      setUnits(unitsData);
       setLoading(false);
     } catch (err) {
+      console.error('Failed to fetch translation units:', err);
       setError('Failed to fetch translation units');
       setLoading(false);
     }
@@ -52,7 +54,15 @@ function App() {
   };
 
   const handleEdit = (unit) => {
-    setEditingUnit(unit);
+    const standardizedUnit = {
+      id: unit.id,
+      sourceLanguage: unit.source_language || unit.sourceLanguage,
+      targetLanguage: unit.target_language || unit.targetLanguage,
+      sourceText: unit.source_text || unit.sourceText,
+      targetText: unit.target_text || unit.targetText,
+      history: unit.history || []
+    };
+    setEditingUnit(standardizedUnit);
   };
 
   const handleCancelEdit = () => {

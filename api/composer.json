@@ -1,6 +1,6 @@
 {
-    "name": "robert/php-dev-test",
-    "description": "Computer-Assisted Translation Tool",
+    "name": "cat/api",
+    "description": "Computer-Assisted Translation API",
     "type": "project",
     "require": {
         "php": ">=7.4"
@@ -17,5 +17,8 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
+    },
+    "config": {
+        "optimize-autoloader": true
     }
 } 

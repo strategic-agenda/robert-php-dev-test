@@ -1,149 +1,88 @@
 <?php
+header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
 
+// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+    http_response_code(200);
+    exit;
 }
 
-require_once __DIR__ . '/../src/TranslationUnit.php';
-require_once __DIR__ . '/../src/Language.php';
+// Load Composer's autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
 
-// Get request body for POST/PUT requests
-$requestBody = json_decode(file_get_contents('php://input'), true);
+// Load environment variables from .env file
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '#') === 0) {
+            continue; // Skip comments
+        }
+        list($key, $value) = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+        putenv("$key=$value");
+    }
+}
 
-// Basic routing
-$request = $_SERVER['REQUEST_URI'];
-$method = $_SERVER['REQUEST_METHOD'];
+// Initialize the dependency container
+$container = \App\Config\DependencyContainer::build();
 
-// Parse URL to extract ID if present
-$requestParts = explode('/', trim($request, '/'));
+// Extract route from URL
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = explode('/', $uri);
 
-// Debug output
-// echo json_encode(['request' => $request, 'parts' => $requestParts]);
-// exit;
+// API endpoint prefix
+$apiRoute = array_search('api', $uri);
+if ($apiRoute === false) {
+    sendErrorResponse('Invalid API endpoint', 404);
+}
 
-// Simple router
-if (isset($requestParts[0]) && $requestParts[0] === 'api') {
-    $endpoint = $requestParts[1] ?? '';
-    $id = $requestParts[2] ?? null;
-    
-    switch ($endpoint) {
-        case 'languages':
-            if ($method === 'GET') {
-                // Get all languages or a specific language
-                if ($id) {
-                    $language = Language::findByCode($id);
-                    if ($language) {
-                        echo json_encode($language->toArray());
-                    } else {
-                        http_response_code(404);
-                        echo json_encode(['error' => 'Language not found']);
-                    }
-                } else {
-                    $languages = Language::findAll();
-                    $result = [];
-                    
-                    foreach ($languages as $language) {
-                        $result[] = $language->toArray();
-                    }
-                    
-                    echo json_encode($result);
-                }
-            } else {
-                http_response_code(405);
-                echo json_encode(['error' => 'Method not allowed for languages endpoint']);
-            }
-            break;
-            
+// Extract route parts after /api/
+$routeParts = array_slice($uri, $apiRoute + 1);
+$resource = $routeParts[0] ?? null;
+$id = $routeParts[1] ?? null;
+$action = $routeParts[2] ?? null;
+
+// API Routing
+try {
+    switch ($resource) {
         case 'units':
-            if ($method === 'GET') {
-                if ($id) {
-                    // Get single unit
-                    $unit = TranslationUnit::findById($id);
-                    if ($unit) {
-                        echo json_encode($unit->toArray());
-                    } else {
-                        http_response_code(404);
-                        echo json_encode(['error' => 'Unit not found']);
-                    }
-                } else {
-                    // Get all units
-                    $units = TranslationUnit::findAll();
-                    $result = [];
-                    
-                    foreach ($units as $unit) {
-                        $result[] = $unit->toArray();
-                    }
-                    
-                    echo json_encode($result);
-                }
-            } elseif ($method === 'POST') {
-                // Create new unit
-                if (!$requestBody) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Invalid request body']);
-                    exit;
-                }
-                
-                $unit = new TranslationUnit(
-                    $requestBody['sourceText'] ?? null,
-                    $requestBody['targetText'] ?? null,
-                    $requestBody['sourceLanguage'] ?? null,
-                    $requestBody['targetLanguage'] ?? null
-                );
-                
-                $unit->save();
-                
-                http_response_code(201);
-                echo json_encode($unit->toArray());
-            } elseif ($method === 'PUT' && $id) {
-                // Update existing unit
-                $unit = TranslationUnit::findById($id);
-                
-                if (!$unit) {
-                    http_response_code(404);
-                    echo json_encode(['error' => 'Unit not found']);
-                    exit;
-                }
-                
-                if (isset($requestBody['targetText'])) {
-                    $unit->updateTargetText($requestBody['targetText']);
-                }
-                
-                echo json_encode($unit->toArray());
-            } elseif ($method === 'DELETE' && $id) {
-                // Delete unit
-                $unit = TranslationUnit::findById($id);
-                
-                if (!$unit) {
-                    http_response_code(404);
-                    echo json_encode(['error' => 'Unit not found']);
-                    exit;
-                }
-                
-                $unit->delete();
-                
-                http_response_code(204); // No content
-            } else {
-                http_response_code(405);
-                echo json_encode(['error' => 'Method not allowed']);
-            }
+            $controller = $container->get(\App\Controllers\TranslationUnitController::class);
+            $controller->handleRequest($_SERVER['REQUEST_METHOD'], $id, $action);
             break;
         
-        default:
-            http_response_code(404);
-            echo json_encode(['error' => 'Endpoint not found']);
+        case 'languages':
+            $controller = $container->get(\App\Controllers\LanguageController::class);
+            $controller->handleRequest($_SERVER['REQUEST_METHOD'], $id, $action);
             break;
+            
+        default:
+            sendErrorResponse('Resource not found', 404);
     }
-} else {
-    // Return a more descriptive error
-    http_response_code(404);
+} catch (Exception $e) {
+    $statusCode = ($e instanceof \InvalidArgumentException) ? 400 : 500;
+    sendErrorResponse($e->getMessage(), $statusCode);
+}
+
+/**
+ * Send an error response
+ * 
+ * @param string $message
+ * @param int $statusCode
+ * @return void
+ */
+function sendErrorResponse(string $message, int $statusCode): void
+{
+    http_response_code($statusCode);
     echo json_encode([
-        'error' => 'API not found',
-        'request' => $request,
-        'requestParts' => $requestParts
-    ]);
+        'error' => $message,
+        'timestamp' => date('Y-m-d H:i:s'),
+        'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+        'method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
+    ], JSON_PRETTY_PRINT);
+    exit;
 } 

@@ -10,6 +10,9 @@ function TranslationUnitList({ units, onEdit, onDelete }) {
     history: []
   });
 
+  // Ensure units is an array
+  const safeUnits = Array.isArray(units) ? units : [];
+
   useEffect(() => {
     // Fetch languages from the API
     const fetchLanguages = async () => {
@@ -34,7 +37,7 @@ function TranslationUnitList({ units, onEdit, onDelete }) {
     return <div className="loading">Loading languages...</div>;
   }
   
-  if (!units.length) {
+  if (!safeUnits.length) {
     return <div className="no-units">
       <h3>No Translation Units Available</h3>
       <p>Create your first translation unit by clicking the "Add New Translation Unit" button above.</p>
@@ -61,9 +64,9 @@ function TranslationUnitList({ units, onEdit, onDelete }) {
       isOpen: true,
       unitId,
       history: unit.history || [],
-      sourceText: unit.sourceText,
-      sourceLanguage: getLanguageName(unit.sourceLanguage),
-      targetLanguage: getLanguageName(unit.targetLanguage)
+      sourceText: unit.source_text || unit.sourceText,
+      sourceLanguage: getLanguageName(unit.source_language || unit.sourceLanguage),
+      targetLanguage: getLanguageName(unit.target_language || unit.targetLanguage)
     });
   };
 
@@ -77,54 +80,66 @@ function TranslationUnitList({ units, onEdit, onDelete }) {
 
   return (
     <div className="translation-units">
-      <h2 className="section-title">Translation Units ({units.length})</h2>
+      <h2 className="section-title">Translation Units ({safeUnits.length})</h2>
       
-      <table className="units-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Source Language</th>
-            <th>Source Text</th>
-            <th>Target Language</th>
-            <th>Target Text</th>
-            <th>History</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {units.map(unit => (
-            <tr key={unit.id}>
-              <td>{unit.id}</td>
-              <td>{getLanguageName(unit.sourceLanguage)}</td>
-              <td className="text-cell">{unit.sourceText}</td>
-              <td>{getLanguageName(unit.targetLanguage)}</td>
-              <td className="text-cell">{unit.targetText}</td>
-              <td>
-                {unit.history && unit.history.length > 0 ? (
-                  <button 
-                    className="history-button" 
-                    onClick={() => showHistoryModal(unit.id, unit)}
-                  >
-                    Show History
-                  </button>
-                ) : (
-                  <span className="no-history">None</span>
-                )}
-              </td>
-              <td>
-                <div className="table-actions">
-                  <button className="edit-button" onClick={() => onEdit(unit)}>
-                    Edit
-                  </button>
-                  <button className="delete-button" onClick={() => onDelete(unit.id)}>
-                    Delete
-                  </button>
-                </div>
-              </td>
+      <div className="table-responsive">
+        <table className="units-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Source Language</th>
+              <th>Source Text</th>
+              <th>Target Language</th>
+              <th>Target Text</th>
+              <th>History</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {safeUnits.map(unit => {
+              // Map backend field names (snake_case) to frontend field names (camelCase) if needed
+              const id = unit.id;
+              const sourceLanguage = unit.source_language || unit.sourceLanguage;
+              const targetLanguage = unit.target_language || unit.targetLanguage;
+              const sourceText = unit.source_text || unit.sourceText;
+              const targetText = unit.target_text || unit.targetText;
+              const history = unit.history || [];
+              
+              return (
+                <tr key={id}>
+                  <td>{id}</td>
+                  <td>{getLanguageName(sourceLanguage)}</td>
+                  <td className="text-cell">{sourceText}</td>
+                  <td>{getLanguageName(targetLanguage)}</td>
+                  <td className="text-cell">{targetText}</td>
+                  <td>
+                    {history && history.length > 0 ? (
+                      <button 
+                        className="history-button" 
+                        onClick={() => showHistoryModal(id, unit)}
+                      >
+                        Show History
+                      </button>
+                    ) : (
+                      <span className="no-history">None</span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="edit-button" onClick={() => onEdit(unit)}>
+                        Edit
+                      </button>
+                      <button className="delete-button" onClick={() => onDelete(id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       
       {/* History Modal */}
       {historyModal.isOpen && (
