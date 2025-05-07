@@ -20,7 +20,9 @@ class TranslationUnitRepository
         unset($data['id'], $data['history']);
 
         $this->connection->insert('translation_units', $data);
-        return (int) $this->connection->lastInsertId();
+        $id = (int) $this->connection->lastInsertId();
+        $unit->setId($id);
+        return $id;
     }
 
     public function findById(int $id): ?TranslationUnit
@@ -40,6 +42,7 @@ class TranslationUnitRepository
             $data['source_language'],
             $data['target_language']
         );
+        $unit->setId($data['id']);
 
         // Load history
         $history = $this->connection->fetchAllAssociative(
@@ -92,6 +95,7 @@ class TranslationUnitRepository
                 $row['source_language'],
                 $row['target_language']
             );
+            $unit->setId($row['id']);
             $units[] = $unit;
         }
 

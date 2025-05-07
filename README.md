@@ -35,6 +35,11 @@ psql translation_db < database/schema.sql
 5. Start the development server:
 ```bash
 php -S localhost:8000 -t public
+
+
+cd frontend
+npm install
+npm start
 ```
 
 The API will be available at `http://localhost:8000/api/translation-units`

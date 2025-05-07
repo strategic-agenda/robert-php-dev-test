@@ -44,17 +44,37 @@ class TranslationUnitController
     {
         $data = $request->getParsedBody();
 
-        $unit = new TranslationUnit(
-            $data['sourceText'],
-            $data['targetText'],
-            $data['sourceLanguage'],
-            $data['targetLanguage']
-        );
+        // Validate required fields
+        $requiredFields = ['sourceText', 'targetText', 'sourceLanguage', 'targetLanguage'];
+        $missingFields = array_filter($requiredFields, fn($field) => empty($data[$field]));
 
-        $id = $this->repository->create($unit);
-        
-        $response->getBody()->write(json_encode(['id' => $id]));
-        return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+        if (!empty($missingFields)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Missing required fields',
+                'fields' => array_values($missingFields)
+            ]));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        try {
+            $unit = new TranslationUnit(
+                $data['sourceText'],
+                $data['targetText'],
+                $data['sourceLanguage'],
+                $data['targetLanguage']
+            );
+
+            $id = $this->repository->create($unit);
+            
+            $response->getBody()->write(json_encode(['id' => $id]));
+            return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to create translation unit',
+                'message' => $e->getMessage()
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
     }
 
     public function update(Request $request, Response $response, array $args): Response
@@ -66,11 +86,25 @@ class TranslationUnitController
         }
 
         $data = $request->getParsedBody();
-        $unit->updateTranslation($data['targetText']);
-        
-        $this->repository->update($unit);
-        
-        return $response->withStatus(204);
+
+        if (empty($data['targetText'])) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Missing required field: targetText'
+            ]));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        try {
+            $unit->updateTranslation($data['targetText']);
+            $this->repository->update($unit);
+            return $response->withStatus(204);
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to update translation unit',
+                'message' => $e->getMessage()
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
     }
 
     public function delete(Request $request, Response $response, array $args): Response

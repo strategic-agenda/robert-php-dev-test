@@ -4,7 +4,7 @@ namespace App\Model;
 
 class TranslationUnit
 {
-    private int $id;
+    private ?int $id = null;
     private string $sourceText;
     private string $targetText;
     private string $sourceLanguage;
@@ -27,7 +27,12 @@ class TranslationUnit
         $this->updatedAt = new \DateTime();
     }
 
-    public function getId(): int
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -57,6 +62,14 @@ class TranslationUnit
         return $this->history;
     }
 
+    public function addHistoryEntry(string $targetText, string $createdAt): void
+    {
+        $this->history[] = [
+            'targetText' => $targetText,
+            'updatedAt' => $createdAt
+        ];
+    }
+
     public function updateTranslation(string $newTargetText): void
     {
         // Add current translation to history
@@ -71,8 +84,7 @@ class TranslationUnit
 
     public function toArray(): array
     {
-        return [
-            'id' => $this->id,
+        $data = [
             'sourceText' => $this->sourceText,
             'targetText' => $this->targetText,
             'sourceLanguage' => $this->sourceLanguage,
@@ -81,5 +93,11 @@ class TranslationUnit
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s')
         ];
+
+        if ($this->id !== null) {
+            $data['id'] = $this->id;
+        }
+
+        return $data;
     }
 } 
