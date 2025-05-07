@@ -7,6 +7,52 @@ Robert is an innovative Computer-Assisted Translation (CAT) tool crafted to stre
 ### What are the units of translation?
 In the field of translation, a translation unit is a segment of a text which the translator treats as a single cognitive unit for the purposes of establishing an equivalence. It may be a single word, a phrase, one or more sentences, or even a larger unit.
 
+## Setup Instructions
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/robert-php-dev-test.git
+cd robert-php-dev-test
+```
+
+2. Install dependencies:
+```bash
+composer install
+```
+
+3. Create a `.env` file in the root directory with the following content:
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=translation_db
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+```
+
+4. Create the database and run migrations:
+```bash
+# Create the database
+createdb translation_db
+
+# Import the schema
+psql translation_db < database/schema.sql
+```
+
+5. Start the development server:
+```bash
+php -S localhost:8000 -t public
+```
+
+The API will be available at `http://localhost:8000/api/translation-units`
+
+## API Endpoints
+
+- `GET /api/translation-units` - List all translation units
+- `GET /api/translation-units/{id}` - Get a specific translation unit
+- `POST /api/translation-units` - Create a new translation unit
+- `PUT /api/translation-units/{id}` - Update a translation unit
+- `DELETE /api/translation-units/{id}` - Delete a translation unit
+
 ## Instructions:
 1. Fork this repository to your own GitHub account.
 2. Create a new branch with your name for making changes.
