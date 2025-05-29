@@ -28,7 +28,13 @@ All endpoints are prefixed with the base URL:
   "data": {
     "id": "unit_001",
     "source_text": "Hello, world!",
-    "source_language": "en"
+    "source_language": "en",
+    "target_language": "es",
+    "target_text": "¡Hola, mundo!",
+    "project_id": "project_001",
+    "created_at": "2024-03-21T10:00:00Z",
+    "updated_at": "2024-03-21T10:00:00Z",
+    "deleted_at": null
   }
 }
 ```
@@ -37,8 +43,7 @@ All endpoints are prefixed with the base URL:
 
 ```json
 {
-  "error": "Translation unit not found",
-  "status": 404
+  "error": "Translation unit not found"
 }
 ```
 
@@ -49,10 +54,11 @@ All endpoints are prefixed with the base URL:
 - **Endpoint**: `GET /api/v1/translation-units`
 - **Description**: Retrieves a paginated list of all translation units.
 - **Query Parameters**:
-  - `page` (optional): Page number for pagination (default: 1).
-  - `per_page` (optional): Number of items per page (default: 10).
-  - `source_language` (optional): Filter by source language (e.g., `en`).
-  - `target_language` (optional): Filter by target language of translations (e.g., `es`).
+  - `page` (optional): Page number for pagination (default: 1)
+  - `per_page` (optional): Number of items per page (default: 10)
+  - `source_language` (optional): Filter by source language (e.g., `en`)
+  - `target_language` (optional): Filter by target language (e.g., `es`)
+  - `project_id` (optional): Filter by project ID
 - **Response**:
   - **Status**: 200 OK
   - **Body**:
@@ -63,21 +69,30 @@ All endpoints are prefixed with the base URL:
           "id": "unit_001",
           "source_text": "Hello, world!",
           "source_language": "en",
-          "translations": [
+          "target_language": "es",
+          "target_text": "¡Hola, mundo!",
+          "project_id": "project_001",
+          "created_at": "2024-03-21T10:00:00Z",
+          "updated_at": "2024-03-21T10:00:00Z",
+          "deleted_at": null,
+          "history": [
             {
-              "target_language": "es",
-              "target_text": "¡Hola, mundo!",
-              "translator_id": "translator_001",
-              "created_at": "2025-05-01T10:00:00Z",
-              "updated_at": "2025-05-01T10:00:00Z"
+              "id": "history_001",
+              "translation_unit_id": "unit_001",
+              "previous_text": "",
+              "new_text": "¡Hola, mundo!",
+              "changed_by": "user_001",
+              "change_reason": "Initial translation",
+              "created_at": "2024-03-21T10:00:00Z"
             }
           ]
         }
       ],
       "meta": {
-        "current_page": 1,
+        "total": 50,
         "per_page": 10,
-        "total": 50
+        "current_page": 1,
+        "last_page": 5
       }
     }
     ```
@@ -87,7 +102,7 @@ All endpoints are prefixed with the base URL:
 - **Endpoint**: `GET /api/v1/translation-units/{id}`
 - **Description**: Retrieves details of a specific translation unit by its ID.
 - **Path Parameters**:
-  - `id`: The unique identifier of the translation unit.
+  - `id`: The unique identifier of the translation unit
 - **Response**:
   - **Status**: 200 OK
   - **Body**:
@@ -97,22 +112,21 @@ All endpoints are prefixed with the base URL:
         "id": "unit_001",
         "source_text": "Hello, world!",
         "source_language": "en",
-        "translations": [
-          {
-            "target_language": "es",
-            "target_text": "¡Hola, mundo!",
-            "translator_id": "translator_001",
-            "created_at": "2025-05-01T10:00:00Z",
-            "updated_at": "2025-05-01T10:00:00Z"
-          }
-        ],
+        "target_language": "es",
+        "target_text": "¡Hola, mundo!",
+        "project_id": "project_001",
+        "created_at": "2024-03-21T10:00:00Z",
+        "updated_at": "2024-03-21T10:00:00Z",
+        "deleted_at": null,
         "history": [
           {
-            "action": "add",
-            "target_language": "es",
-            "text": "¡Hola, mundo!",
-            "translator_id": "translator_001",
-            "timestamp": "2025-05-01T10:00:00Z"
+            "id": "history_001",
+            "translation_unit_id": "unit_001",
+            "previous_text": "",
+            "new_text": "¡Hola, mundo!",
+            "changed_by": "user_001",
+            "change_reason": "Initial translation",
+            "created_at": "2024-03-21T10:00:00Z"
           }
         ]
       }
@@ -128,7 +142,9 @@ All endpoints are prefixed with the base URL:
   {
     "source_text": "Hello, world!",
     "source_language": "en",
-    "project_id": "project_001"
+    "target_language": "es",
+    "project_id": "project_001",
+    "target_text": "¡Hola, mundo!"
   }
   ```
 - **Response**:
@@ -140,56 +156,28 @@ All endpoints are prefixed with the base URL:
         "id": "unit_001",
         "source_text": "Hello, world!",
         "source_language": "en",
-        "project_id": "project_001",
-        "created_at": "2025-05-01T10:00:00Z",
-        "updated_at": "2025-05-01T10:00:00Z"
-      }
-    }
-    ```
-
-### 4. Add a Translation
-
-- **Endpoint**: `POST /api/v1/translation-units/{id}/translations`
-- **Description**: Adds a translation to an existing translation unit.
-- **Path Parameters**:
-  - `id`: The unique identifier of the translation unit.
-- **Request Body**:
-  ```json
-  {
-    "target_language": "es",
-    "target_text": "¡Hola, mundo!",
-    "translator_id": "translator_001"
-  }
-  ```
-- **Response**:
-  - **Status**: 201 Created
-  - **Body**:
-    ```json
-    {
-      "data": {
-        "translation_unit_id": "unit_001",
         "target_language": "es",
         "target_text": "¡Hola, mundo!",
-        "translator_id": "translator_001",
-        "created_at": "2025-05-01T10:00:00Z",
-        "updated_at": "2025-05-01T10:00:00Z"
+        "project_id": "project_001",
+        "created_at": "2024-03-21T10:00:00Z",
+        "updated_at": "2024-03-21T10:00:00Z",
+        "deleted_at": null
       }
     }
     ```
 
-### 5. Update a Translation
+### 4. Update a Translation Unit
 
-- **Endpoint**: `PUT /api/v1/translation-units/{id}/translations/{target_language}`
-- **Description**: Updates an existing translation.
+- **Endpoint**: `PUT /api/v1/translation-units/{id}`
+- **Description**: Updates an existing translation unit.
 - **Path Parameters**:
-  - `id`: The unique identifier of the translation unit.
-  - `target_language`: The language code of the translation to update.
+  - `id`: The unique identifier of the translation unit
 - **Request Body**:
   ```json
   {
     "target_text": "¡Hola, mundo nuevo!",
-    "translator_id": "translator_002",
-    "reason": "Improved translation accuracy"
+    "changed_by": "user_002",
+    "change_reason": "Improved translation accuracy"
   }
   ```
 - **Response**:
@@ -198,47 +186,133 @@ All endpoints are prefixed with the base URL:
     ```json
     {
       "data": {
-        "translation_unit_id": "unit_001",
+        "id": "unit_001",
+        "source_text": "Hello, world!",
+        "source_language": "en",
         "target_language": "es",
         "target_text": "¡Hola, mundo nuevo!",
-        "translator_id": "translator_002",
-        "created_at": "2025-05-01T10:00:00Z",
-        "updated_at": "2025-05-01T10:10:00Z"
+        "project_id": "project_001",
+        "created_at": "2024-03-21T10:00:00Z",
+        "updated_at": "2024-03-21T10:10:00Z",
+        "deleted_at": null,
+        "history": [
+          {
+            "id": "history_001",
+            "translation_unit_id": "unit_001",
+            "previous_text": "¡Hola, mundo!",
+            "new_text": "¡Hola, mundo nuevo!",
+            "changed_by": "user_002",
+            "change_reason": "Improved translation accuracy",
+            "created_at": "2024-03-21T10:10:00Z"
+          }
+        ]
       }
     }
     ```
 
-### 6. Delete a Translation Unit
+### 5. Delete a Translation Unit
 
 - **Endpoint**: `DELETE /api/v1/translation-units/{id}`
-- **Description**: Deletes a translation unit (soft delete).
+- **Description**: Soft deletes a translation unit.
 - **Path Parameters**:
-  - `id`: The unique identifier of the translation unit.
+  - `id`: The unique identifier of the translation unit
 - **Response**:
-  - **Status**: 204 No Content
+  - **Status**: 200 OK
+  - **Body**:
+    ```json
+    {
+      "message": "Translation unit deleted successfully"
+    }
+    ```
+
+### 6. Get Translation History
+
+- **Endpoint**: `GET /api/v1/translation-units/{id}/history`
+- **Description**: Retrieves the translation history for a specific unit.
+- **Path Parameters**:
+  - `id`: The unique identifier of the translation unit
+- **Response**:
+  - **Status**: 200 OK
+  - **Body**:
+    ```json
+    {
+      "data": [
+        {
+          "id": "history_001",
+          "translation_unit_id": "unit_001",
+          "previous_text": "",
+          "new_text": "¡Hola, mundo!",
+          "changed_by": "user_001",
+          "change_reason": "Initial translation",
+          "created_at": "2024-03-21T10:00:00Z"
+        },
+        {
+          "id": "history_002",
+          "translation_unit_id": "unit_001",
+          "previous_text": "¡Hola, mundo!",
+          "new_text": "¡Hola, mundo nuevo!",
+          "changed_by": "user_002",
+          "change_reason": "Improved translation accuracy",
+          "created_at": "2024-03-21T10:10:00Z"
+        }
+      ]
+    }
+    ```
 
 ## Error Handling
 
 ### Common Error Codes
 
 - `400 Bad Request`: Invalid request parameters
-- `401 Unauthorized`: Missing or invalid authentication
-- `403 Forbidden`: Insufficient permissions
 - `404 Not Found`: Resource not found
 - `422 Unprocessable Entity`: Validation errors
-- `429 Too Many Requests`: Rate limit exceeded
 - `500 Internal Server Error`: Server-side error
 
-### Error Response Format
+### Validation Rules
 
-```json
-{
-  "error": {
-    "message": "Detailed error message",
-    "code": "ERROR_CODE",
-    "status": 400
-  }
-}
+#### Create Translation Unit
+
+- `source_text`: Required, string
+- `source_language`: Required, string, format: xx or xx-XX (e.g., en, en-US)
+- `target_language`: Required, string, format: xx or xx-XX (e.g., en, en-US)
+- `project_id`: Required, string
+- `target_text`: Optional, string
+
+#### Update Translation Unit
+
+- `target_text`: Required, string
+- `changed_by`: Required, string
+- `change_reason`: Optional, string
+
+## Implementation Details
+
+The API is implemented using Laravel's best practices with the following structure:
+
+- **Controllers**: Handle HTTP requests and responses
+- **Services**: Contain business logic and validation
+- **Repositories**: Handle data access and persistence
+- **Resources**: Transform models into JSON responses
+
+### Directory Structure
+
+```
+api/
+├── Http/
+│   ├── Controllers/
+│   │   └── Api/
+│   │       └── TranslationUnitController.php
+│   ├── Requests/
+│   │   └── TranslationUnitRequest.php
+│   └── Resources/
+│       ├── TranslationUnitResource.php
+│       └── TranslationHistoryResource.php
+├── Repositories/
+│   ├── TranslationUnitRepository.php
+│   └── TranslationUnitRepositoryInterface.php
+├── Services/
+│   └── TranslationUnitService.php
+└── Providers/
+    └── RepositoryServiceProvider.php
 ```
 
 ## Rate Limiting

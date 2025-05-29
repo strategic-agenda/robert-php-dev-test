@@ -4,11 +4,30 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use DateTime;
 use InvalidArgumentException;
 
-class TranslationUnit
+class TranslationUnit extends Model
 {
+    use SoftDeletes;
+
+    protected $fillable = [
+        'source_text',
+        'source_language',
+        'target_language',
+        'target_text',
+        'project_id'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
+    ];
+
     private string $id;
     private string $sourceText;
     private string $sourceLanguage;
@@ -92,26 +111,28 @@ class TranslationUnit
         return $this->history;
     }
 
+    public function history(): HasMany
+    {
+        return $this->hasMany(TranslationHistory::class);
+    }
+
     public function updateTargetText(string $newText, string $changedBy, ?string $changeReason = null): void
     {
-        if ($this->deletedAt !== null) {
+        if ($this->trashed()) {
             throw new InvalidArgumentException('Cannot update a deleted translation unit');
         }
 
-        $previousText = $this->targetText;
-        $this->targetText = $newText;
-        $this->updatedAt = new DateTime();
+        $previousText = $this->target_text;
+        $this->target_text = $newText;
+        $this->save();
 
         // Create history entry
-        $historyEntry = new TranslationHistory(
-            $this->id,
-            $previousText ?? '',
-            $newText,
-            $changedBy,
-            $changeReason
-        );
-
-        $this->history[] = $historyEntry;
+        $this->history()->create([
+            'previous_text' => $previousText ?? '',
+            'new_text' => $newText,
+            'changed_by' => $changedBy,
+            'change_reason' => $changeReason
+        ]);
     }
 
     public function delete(): void
@@ -147,6 +168,16 @@ class TranslationUnit
             'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
             'history' => array_map(fn($entry) => $entry->toArray(), $this->history)
         ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->validateLanguageCode($model->source_language);
+            $model->validateLanguageCode($model->target_language);
+        });
     }
 
     private function validateLanguageCode(string $code): void

@@ -4,10 +4,24 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use DateTime;
 
-class TranslationHistory
+class TranslationHistory extends Model
 {
+    protected $fillable = [
+        'translation_unit_id',
+        'previous_text',
+        'new_text',
+        'changed_by',
+        'change_reason'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime'
+    ];
+
     private string $id;
     private string $translationUnitId;
     private string $previousText;
@@ -78,5 +92,10 @@ class TranslationHistory
             'change_reason' => $this->changeReason,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s')
         ];
+    }
+
+    public function translationUnit(): BelongsTo
+    {
+        return $this->belongsTo(TranslationUnit::class);
     }
 } 
