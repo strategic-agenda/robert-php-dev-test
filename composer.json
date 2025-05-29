@@ -1,0 +1,21 @@
+{
+    "name": "robert/php-dev-test",
+    "description": "PHP Architect Test for Robert",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Robert\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Robert\\Tests\\": "tests/"
+        }
+    }
+} 
