@@ -1,4 +1,10 @@
-// Component to display a list of translation units and their translations.
+/**
+ * TranslationList Component
+ *
+ * A component that displays a list of translation units and provides
+ * functionality to add, edit, and delete translations.
+ * Manages the state of translations and handles API interactions.
+ */
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -12,6 +18,9 @@ const TranslationList = () => {
   const [error, setError] = useState(null);
   const [editingTranslation, setEditingTranslation] = useState(null);
 
+  /**
+   * Fetch translations from the API
+   */
   const fetchTranslations = async () => {
     try {
       setLoading(true);
@@ -30,20 +39,10 @@ const TranslationList = () => {
     fetchTranslations();
   }, []);
 
-  const handleEdit = (translation) => {
-    setEditingTranslation(translation);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(API_ENDPOINTS.TRANSLATION_BY_ID(id));
-      fetchTranslations();
-    } catch (err) {
-      setError("Failed to delete translation. Please try again later.");
-      console.error("Error deleting translation:", err);
-    }
-  };
-
+  /**
+   * Handle form submission for creating or updating translations
+   * @param {Object} formData The form data to submit
+   */
   const handleFormSubmit = async (formData) => {
     try {
       if (editingTranslation) {
@@ -59,6 +58,28 @@ const TranslationList = () => {
     } catch (err) {
       setError("Failed to save translation. Please try again later.");
       console.error("Error saving translation:", err);
+    }
+  };
+
+  /**
+   * Handle editing a translation
+   * @param {Object} translation The translation to edit
+   */
+  const handleEdit = (translation) => {
+    setEditingTranslation(translation);
+  };
+
+  /**
+   * Handle deleting a translation
+   * @param {string} id The ID of the translation to delete
+   */
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(API_ENDPOINTS.TRANSLATION_BY_ID(id));
+      fetchTranslations();
+    } catch (err) {
+      setError("Failed to delete translation. Please try again later.");
+      console.error("Error deleting translation:", err);
     }
   };
 

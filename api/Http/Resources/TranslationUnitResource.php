@@ -7,8 +7,20 @@ namespace Api\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * TranslationUnitResource
+ * 
+ * Resource class for transforming TranslationUnit models into JSON responses.
+ * This class handles the API response formatting for translation units.
+ */
 class TranslationUnitResource extends JsonResource
 {
+    /**
+     * Transform the resource into an array.
+     *
+     * @param Request $request The incoming HTTP request
+     * @return array The transformed data array
+     */
     public function toArray(Request $request): array
     {
         return [

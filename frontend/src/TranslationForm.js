@@ -3,15 +3,33 @@
 import React, { useState, useEffect } from "react";
 import { FORM_FIELDS, INITIAL_FORM_STATE } from "./config/constants";
 
+/**
+ * TranslationForm Component
+ *
+ * A form component for adding and editing translation units.
+ * Handles form state management and submission of translation data.
+ *
+ * @param {Object} props Component props
+ * @param {Function} props.onSubmit Callback function when form is submitted
+ * @param {Object} [props.initialData] Initial form data for editing mode
+ * @param {Function} [props.onCancel] Callback function when form is cancelled
+ */
 const TranslationForm = ({ onSubmit, initialData, onCancel }) => {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
+  /**
+   * Update form data when initialData changes
+   */
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
     }
   }, [initialData]);
 
+  /**
+   * Handle input field changes
+   * @param {Event} e The change event
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -20,6 +38,10 @@ const TranslationForm = ({ onSubmit, initialData, onCancel }) => {
     }));
   };
 
+  /**
+   * Handle form submission
+   * @param {Event} e The submit event
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);

@@ -1,83 +1,76 @@
-# robert-php-dev-test
+# Translation Management System
 
-PHP Architect Test for Robert
+A full-stack application for managing translations with history tracking.
 
-### What is Robert?
+## Backend Setup
 
-Robert is an innovative Computer-Assisted Translation (CAT) tool crafted to streamline translation tasks, enhancing the speed and efficiency of translators. By uploading the source document into the application, the interface intelligently segments it into translation units—be they phrases, sentences, or paragraphs—facilitating a smoother translation process.
+1. Install PHP dependencies:
 
-### What are the units of translation?
+```bash
+composer install
+```
 
-In the field of translation, a translation unit is a segment of a text which the translator treats as a single cognitive unit for the purposes of establishing an equivalence. It may be a single word, a phrase, one or more sentences, or even a larger unit.
+2. Copy the environment file:
 
-## Instructions:
+```bash
+cp .env.example .env
+```
 
-1. Fork this repository to your own GitHub account.
-2. Create a new branch with your name for making changes.
-3. Work on the tasks listed below.
-4. Once done, create a pull request from your branch to the main repository.
-5. Record a video with voiceover, presenting the tool and its logic, and send it to us.
+3. Start the PHP development server:
 
-## Tasks:
+```bash
+php -S localhost:8000 -t public
+```
 
-## Task 1: Design Patterns and Architecture
+## Frontend Setup
 
-You are tasked with designing the architecture for a new Computer-Assisted Translation tool. Consider the following aspects:
+1. Navigate to the frontend directory:
 
-- How would you structure the system to handle multilingual content efficiently?
-- Discuss the design patterns you would implement to ensure scalability, maintainability, and flexibility.
-- Propose a database schema to store and manage translation units.
-- Briefly describe how you would implement version control for translations.
+```bash
+cd frontend
+```
 
-## Task 2: PHP Coding Challenge
+2. Install Node.js dependencies:
 
-Implement a basic PHP class for managing translation units. The class should have the following functionalities:
+```bash
+npm install
+```
 
-- Add a new translation unit.
-- Retrieve a translation unit by ID.
-- Update a translation unit and keep history.
+3. Start the development server:
 
-Please provide a simple usage example demonstrating these functionalities.
+```bash
+npm start
+```
 
-## Task 3: API Design
+The frontend will be available at http://localhost:3000
 
-Design a simple RESTful API for the CAT tool. The API should allow users to perform CRUD operations on translation units. Include endpoints for listing all units, retrieving a specific unit, updating a unit, and deleting a unit.
+## Running Tests
 
-## Task 4: ReactJS Task
+To run the backend tests:
 
-Develop a basic ReactJS component to interact with the API designed in Task 3. The React component should:
+```bash
+composer test
+```
 
-- Display a list of translation units (i.e. 10).
-- Allow users to add translations.
-- Allow users to edit translations.
+To run the frontend tests:
 
-## Task 5: Testing (optional)
+```bash
+cd frontend
+npm test
+```
 
-Write unit tests for the PHP class you implemented in Task 2. Use a testing framework of your choice.
+## Features
 
-## Evaluation Criteria:
+- Create, read, update, and delete translations
+- Track translation history
+- Modern React frontend with responsive design
+- RESTful API backend
+- Comprehensive test coverage
 
-Design and Architecture (30 points):
+## API Endpoints
 
-- Well-structured architecture considering multilingual content and design patterns.
-- Logical and efficient database schema.
-- Clear explanation of version control implementation.
-
-PHP Coding Challenge (30 points):
-
-- Correct implementation of the PHP class.
-- Proper usage example provided.
-
-API Design (20 points):
-
-- RESTful design principles.
-- Clear definition of endpoints and their functionalities.
-
-ReactJS Task (20 points):
-
-- Proper implementation of the ReactJS component.
-- Functionality to interact with the API.
-
-Testing (10000000 points):
-
-- Comprehensive unit tests for the PHP class.
+- GET /api/translations - List all translations
+- GET /api/translations/{id} - Get a specific translation
+- POST /api/translations - Create a new translation
+- PUT /api/translations/{id} - Update a translation
+- DELETE /api/translations/{id} - Delete a translation
