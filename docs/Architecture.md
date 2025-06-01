@@ -49,13 +49,13 @@ Because Robert may receive source documents in various languages (English, Frenc
 
     class EnglishSegmenter implements SegmenterInterface {
         public function splitIntoUnits(string $text): array {
-            // e.g., preg_split('/(?<=[.?!])\s+/', $text);
+            // e.g., use regex
         }
     }
 
     class ChineseSegmenter implements SegmenterInterface {
         public function splitIntoUnits(string $text): array {
-            // e.g., a library or a simple heuristic based on Chinese punctuation
+            // e.g., a library or an API
         }
     }
     // …additional language segmenters
