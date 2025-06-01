@@ -186,12 +186,41 @@ Here’s a simple Entity-Relationship diagram:
 
 - **translations.target_language + version:**
 
-    - You might have multiple target languages (French, Spanish, etc.).
+    - For multiple target languages (French, Spanish, etc.).
 
-    - For each target language, you may have several versions as translators revise unit by unit.
+    - For each target language, we may have several versions as translators revise unit by unit.
 
 - **is_locked** (in translation_units): Optional flag if a unit is “finalized” and shouldn’t be exported or changed further.
 
 - **translation_audit_log:** A separate table if you need detailed history (who changed what, when, and why). This is an audit trail rather than just the latest version.
 
 ## 🧾 5. Versioning Strategy
+
+### 1. Multiple Iterations on Each Unit
+- Whenever a translator edits a translated sentence, increment `version` for that (`translation_unit_id`, `target_language`).
+
+- E.g., the first save is **version 1**, the next save becomes **version 2**, etc.
+
+### 2. Audit Trail
+- Using the `translation_audit_log` table, record:
+
+    - `translation_id` (the row from `translations`)
+
+    - `previous_content` and `new_content`
+
+    - `changed_at`, `changed_by_user`, and optional `change_reason`
+
+- This allows rolling back: if a translator flags version 3 as wrong, you can retrieve version 2 from `translations.version = 2` or from `translation_audit_log`.
+
+### 3. Concurrency / Locking (Optional Enhancement)
+- If two translators open the same unit simultaneously, you could lock the unit when someone begins editing (`translation_units.is_locked = 1`), preventing others from editing until it’s unlocked.
+
+## ✅ 6. Summary
+How Each Design Choice Addresses Key Requirements:
+| Requirement                           | Design/Pattern                             | Explanation                                                                                                                                                                            |
+| ------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Segment by language rules**         | Strategy + Factory                         | Each language’s segmentation logic is encapsulated in dedicated classes (`EnglishSegmenter`, `ChineseSegmenter`, etc.), avoiding monolithic functions in the API backend.                    |
+| **Easily swap or mock storage**       | Repository Pattern + Dependency Injection  | API controllers/services depend on repository interfaces. Switching databases (e.g., SQLite → MySQL) only requires implementing a new repository without changing API code.            |
+| **Separate API logic from client UI** | API-centric MVC                            | API controllers handle requests and call services; services handle business logic and repositories access data. The frontend (React for example) consumes the API JSON responses, keeping UI logic separate. |
+| **Audit/version history**             | Versioned `translations` table + Audit log | Each translation record includes a `version` column. Audit logs track changes and timestamps, enabling rollback and traceability through the API.                                      |
+| **Extensible for new features**       | Observer Pattern + Dependency Injection    | On events like `TranslationSavedEvent`, observers can trigger side effects (e.g., notifications, cache updates) without changing core API logic.                                       |
