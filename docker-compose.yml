@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  robert-app:
+    build: .
+    ports:
+      - "8182:80"
+    volumes:
+      - .:/var/www/html
+      - ./config/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    restart: unless-stopped
