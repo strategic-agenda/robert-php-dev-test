@@ -164,5 +164,18 @@ It separates concerns:
 
 
 ## 🗃️ 4. Database Schema (SQL)
+We need to store:
+
+1. **Original Documents**
+
+2. **Translation Units** (source sentences/phrases/paragraphs)
+
+3. **Translations** (possibly multiple versions in different target languages)
+
+4. **Versioning/Audit Trails** (to revert or inspect history)
+
+Here’s a simple Entity-Relationship diagram:
+![Entity-Relationship diagram](./diagram.png "Entity-Relationship diagram")
+
 
 ## 🧾 5. Versioning Strategy
