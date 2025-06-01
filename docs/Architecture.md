@@ -177,5 +177,21 @@ We need to store:
 Here’s a simple Entity-Relationship diagram:
 ![Entity-Relationship diagram](./diagram.png "Entity-Relationship diagram")
 
+**Explanation of Key Columns:**
+- **documents.language:** ISO code of the source. Helps pick correct segmentation rules.
+
+- **translation_units.sequence_number:** Preserves original order so you can reassemble the document in the same order (e.g., for export).
+
+- **source_content:** Raw text of each unit (e.g., a sentence or paragraph).
+
+- **translations.target_language + version:**
+
+    - You might have multiple target languages (French, Spanish, etc.).
+
+    - For each target language, you may have several versions as translators revise unit by unit.
+
+- **is_locked** (in translation_units): Optional flag if a unit is “finalized” and shouldn’t be exported or changed further.
+
+- **translation_audit_log:** A separate table if you need detailed history (who changed what, when, and why). This is an audit trail rather than just the latest version.
 
 ## 🧾 5. Versioning Strategy
