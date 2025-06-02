@@ -57,6 +57,16 @@ class TranslationUnit {
     {
         return $this->id;
     }
+
+    // Delete a translation unit by ID
+    public static function delete(int $id): bool
+    {
+        if (isset(self::$units[$id])) {
+            unset(self::$units[$id]);
+            return true;
+        }
+        return false;
+    }
 }
 
 // ================================ TESTING ================================
