@@ -14,7 +14,7 @@ $segments = explode('/', $path);
 $resource = $segments[0] ?? null;
 $id = $segments[1] ?? null;
 
-// Read input data
+// Read raw data from the request body
 $input = json_decode(file_get_contents('php://input'), true);
 
 // Route the request
