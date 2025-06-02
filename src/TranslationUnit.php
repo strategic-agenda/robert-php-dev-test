@@ -165,4 +165,11 @@ class TranslationUnit
         $stmt = $this->pdo->prepare("DELETE FROM translation_units WHERE id = :id");
         return $stmt->execute([':id' => $unitId]);
     }
+
+    public function getAllTranslationUnits(): array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM translation_units");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
