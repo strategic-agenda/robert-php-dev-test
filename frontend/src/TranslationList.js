@@ -10,7 +10,7 @@ export default function TranslationList() {
 
   useEffect(() => {
     fetch('/units')
-      .then(res => res.json()).then(data => setUnits(data));
+      .then(res => res.json()).then(data => setUnits(data.slice(0, 10)));
   }, []);
 
   const saveUnit = (unit) => {
