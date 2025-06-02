@@ -67,6 +67,12 @@ class TranslationUnit {
         }
         return false;
     }
+
+    // Get all translation units to use it in the API GET request
+    public static function all(): array
+    {
+        return array_values(self::$units);
+    }
 }
 
 // ================================ TESTING ================================
