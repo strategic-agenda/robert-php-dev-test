@@ -7,7 +7,7 @@ class ProjectManager {
     /**
      * Constructor - initialize database connection
      */
-    public function __construct($host = 'localhost', $dbname = 'translations', $username = 'root', $password = '') {
+    public function __construct($host = '127.0.0.1', $dbname = 'translations', $username = 'root', $password = '') {
         try {
             $this->pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

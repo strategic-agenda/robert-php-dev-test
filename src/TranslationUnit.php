@@ -28,6 +28,8 @@ class TranslationUnit
      */
     public function addTranslationUnit($documentId, $sourceText, $targetText = null, $status = 'new') {
         try {
+
+            
             $stmt = $this->pdo->prepare(
                 "INSERT INTO translation_units (document_id, source_text, target_text, status) 
                  VALUES (:document_id, :source_text, :target_text, :status)"
