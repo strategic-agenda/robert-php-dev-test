@@ -1,3 +1,13 @@
+# Setup
+
+- Run `composer install` in the root folder
+- cd frontend, Run `npm install`
+- run `php -S localhost:8000` to start up local server
+- import the `database/schema.sql`
+- navigate to `localhost:8000/sample-data/sample-data.php` to populate sample data to the database 
+- to run test, cd to the root folder and run `./vendor/bin/pest`
+
+
 # Explaining the architecture and design decisions
 ## System Structure for Multilingual Content
 
