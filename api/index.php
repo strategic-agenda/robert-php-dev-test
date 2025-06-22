@@ -1,6 +1,8 @@
 <?php
 
 
+
+
 require_once 'translations.php';
 
 //log errors

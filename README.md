@@ -66,34 +66,3 @@ ReactJS Task (20 points):
 Testing (10000000 points):
 * Comprehensive unit tests for the PHP class.
 
-
-
-
-# SOLUTION
-# API Endpoints Summary
-
-## Projects
-- `GET /api/projects` - List all projects  
-- `GET /api/projects/{id}` - Get a specific project  
-- `POST /api/projects` - Create a new project  
-- `PUT /api/projects/{id}` - Update a project  
-- `DELETE /api/projects/{id}` - Delete a project and all its related data  
-
-## Documents
-- `GET /api/documents` - List all documents  
-- `GET /api/documents?project_id={id}` - List documents for a specific project  
-- `GET /api/documents/{id}` - Get a specific document  
-- `POST /api/documents` - Create a new document  
-- `PUT /api/documents/{id}` - Update a document  
-- `DELETE /api/documents/{id}` - Delete a document and all its related data  
-
-## Translation Units
-- `GET /api/translation-units` - List all translation units  
-- `GET /api/translation-units?document_id={id}` - List units for a specific document  
-- `GET /api/translation-units/{id}` - Get a specific translation unit  
-- `POST /api/translation-units` - Create a new translation unit  
-- `PUT /api/translation-units/{id}` - Update a translation unit  
-- `DELETE /api/translation-units/{id}` - Delete a translation unit and its history  
-
-## Translation History
-- `GET /api/translation-history/{translation_unit_id}` - Get history for a specific unit  

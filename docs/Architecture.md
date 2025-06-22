@@ -28,3 +28,31 @@ This schema supports tracking translations at the segment level, associating the
 ## Version Control for Translations
 
 Each translation unit includes a `version` field and is linked to a `translation_history` table. Every update to a translation unit creates a new history record, preserving previous versions. The folder structure can mirror the project and document hierarchy, with each document containing its translation units as files or database records. Integration with Git or a similar VCS can be used for file-based versioning, enabling rollback and collaborative editing.
+
+# API Endpoints Summary
+
+## Projects
+- `GET /api/projects` - List all projects  
+- `GET /api/projects/{id}` - Get a specific project  
+- `POST /api/projects` - Create a new project  
+- `PUT /api/projects/{id}` - Update a project  
+- `DELETE /api/projects/{id}` - Delete a project and all its related data  
+
+## Documents
+- `GET /api/documents` - List all documents  
+- `GET /api/documents?project_id={id}` - List documents for a specific project  
+- `GET /api/documents/{id}` - Get a specific document  
+- `POST /api/documents` - Create a new document  
+- `PUT /api/documents/{id}` - Update a document  
+- `DELETE /api/documents/{id}` - Delete a document and all its related data  
+
+## Translation Units
+- `GET /api/translation-units` - List all translation units  
+- `GET /api/translation-units?document_id={id}` - List units for a specific document  
+- `GET /api/translation-units/{id}` - Get a specific translation unit  
+- `POST /api/translation-units` - Create a new translation unit  
+- `PUT /api/translation-units/{id}` - Update a translation unit  
+- `DELETE /api/translation-units/{id}` - Delete a translation unit and its history  
+
+## Translation History
+- `GET /api/translation-history/{translation_unit_id}` - Get history for a specific unit  

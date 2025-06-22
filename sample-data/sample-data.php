@@ -11,39 +11,64 @@ try {
     $documentManager = new DocumentManager();
     $translationManager = new TranslationUnit();
 
-    // Create a project
-    $projectId = $projectManager->createProject("Sample Project", "en", "es");
-    if (!$projectId) {
-        throw new Exception("Failed to create project");
-    }
-    echo "Created project with ID: $projectId\n";
+    // Sample data arrays
+    $projects = [
+        ["Sample Project 1", "en", "es"],
+        ["Sample Project 2", "fr", "de"],
+        ["Sample Project 3", "it", "pt"]
+    ];
 
-    // Create a document
-    $documentId = $documentManager->createDocument($projectId, "Sample Document", "/path/to/document");
-    if (!$documentId) {
-        throw new Exception("Failed to create document");
-    }
-    echo "Created document with ID: $documentId\n";
+    $sampleUsers = [
+        ["user1", "user1@example.com", "translator"],
+        ["user2", "user2@example.com", "reviewer"],
+        ["user3", "user3@example.com", "admin"]
+    ];
 
-    // Create a user (this would typically be in a UserManager class)
+    $sampleTranslations = [
+        ["Hello", "Hola"],
+        ["Goodbye", "Adiós"]
+    ];
+
     $pdo = $projectManager->getPdo();
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, role) VALUES (?, ?, ?)");
-    $stmt->execute(["testuser", "test@example.com", "translator"]);
-    $userId = $pdo->lastInsertId();
-    echo "Created user with ID: $userId\n";
 
-    // Create a translation unit
-    $unitId = $translationManager->addTranslationUnit($documentId, "Hello world");
-    if (!$unitId) {
-        throw new Exception("Failed to create translation unit");
+    foreach ($projects as $index => $projectData) {
+        [$name, $srcLang, $tgtLang] = $projectData;
+
+        // Create project
+        $projectId = $projectManager->createProject($name, $srcLang, $tgtLang);
+        if (!$projectId) {
+            throw new Exception("Failed to create project: $name");
+        }
+        echo "Created project ($name) with ID: $projectId\n";
+
+        // Create document
+        $docName = "Doc for $name";
+        $documentId = $documentManager->createDocument($projectId, $docName, "/dummy/path/$index.txt");
+        if (!$documentId) {
+            throw new Exception("Failed to create document for $name");
+        }
+        echo "  Created document ($docName) with ID: $documentId\n";
+
+        // Create user
+        [$username, $email, $role] = $sampleUsers[$index];
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, role) VALUES (?, ?, ?)");
+        $stmt->execute([$username, $email, $role]);
+        $userId = $pdo->lastInsertId();
+        echo "  Created user ($username) with ID: $userId\n";
+
+        // Add translation units
+        foreach ($sampleTranslations as [$source, $target]) {
+            $unitId = $translationManager->addTranslationUnit($documentId, $source, $target);
+            if (!$unitId) {
+                throw new Exception("Failed to create translation unit ($source)");
+            }
+            echo "    Created translation unit ($source → $target) with ID: $unitId\n";
+        }
+
+        echo "\n";
     }
-    echo "Created translation unit with ID: $unitId\n";
 
-    echo "\nSample data created successfully. You can now use:\n";
-    echo "Project ID: $projectId\n";
-    echo "Document ID: $documentId\n";
-    echo "User ID: $userId\n";
-    echo "Translation Unit ID: $unitId\n";
+    echo "✅ All sample data inserted successfully.\n";
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+    echo " Error: " . $e->getMessage() . "\n";
 }
