@@ -1,5 +1,10 @@
 <?php
 
+namespace App;
+
+use PDO;
+use PDOException;
+use Exception;
 class TranslationUnit
 {
     // Implement the class as per the tasks.

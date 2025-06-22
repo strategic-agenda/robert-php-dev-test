@@ -3,15 +3,27 @@
 
 To efficiently handle multilingual content, the system should be modular, separating core translation logic from language-specific resources. A service-oriented architecture (SOA) or microservices approach can be used, with dedicated services for translation memory, terminology management, and user management. Content should be stored in a normalized format (e.g., XLIFF or TMX) to facilitate easy import/export and integration with other tools.
 
+## Architecture
+
+- **Layered (Monolithic) Architecture:** Fat Model / Active Record Style the class mixes data access logic, business logic, and persistence logic (saving to the database) in one place. This is typical of a monolithic architecture, where the class is self-contained and directly connects to the database since this is just a simple example.
+
+These can actually be improved on to promote scalability (by decoupling components), maintainability (by isolating changes), and flexibility (by supporting plug-and-play modules).
+
+- **Repository-Like Behavior:**
+The class also took a little bit of repository design pattern, because:
+
+    - It interacts with the database using SQL directly.
+
+   - It returns simple arrays instead of model objects.
+
+
+
 ## Design Patterns
 
-- **Repository Pattern:** Abstracts data access, making it easy to switch databases or storage backends.
-- **Factory Pattern:** Creates language-specific processing components (tokenizers, parsers) as needed.
-- **Observer Pattern:** Notifies components (e.g., UI, translation memory) of changes in translation units.
-- **Strategy Pattern:** Allows dynamic selection of translation algorithms (e.g., rule-based, statistical, neural).
-- **Singleton Pattern:** Ensures a single instance of shared resources like configuration or cache.
+- **Active Record:** The class resembles the Active Record pattern, where an object (like TranslationUnit) handles both:
+ - its own data (e.g., source_text, target_text)
+ - its own database operations (addTranslationUnit(), getTranslationUnit()).
 
-These patterns promote scalability (by decoupling components), maintainability (by isolating changes), and flexibility (by supporting plug-and-play modules).
 
 ## Proposed Database Schema
 

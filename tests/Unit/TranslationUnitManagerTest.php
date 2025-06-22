@@ -1,7 +1,12 @@
 <?php
 
 
-require_once __DIR__ . '/../../src/TranslationUnit.php';
+namespace Tests\Unit;
+
+use App\TranslationUnit;
+use PHPUnit\Framework\TestCase;
+use PDO;
+use Exception;
 
 use Pest\Expectation;
 

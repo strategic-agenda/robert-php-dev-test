@@ -1,6 +1,10 @@
 <?php
 
+namespace App;
 
+use PDO;
+use PDOException;
+use Exception;
 class ProjectManager {
     private $pdo;
     

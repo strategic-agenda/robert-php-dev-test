@@ -1,6 +1,10 @@
 <?php
 
 
+use App\ProjectManager;
+use App\DocumentManager;
+use App\TranslationUnit;
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -10,11 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 header("Content-Type: application/json; charset=UTF-8");
-
-
-require_once '../src/ProjectManager.php';
-require_once '../src/DocumentManager.php';
-require_once '../src/TranslationUnit.php';
 
 
 $projectManager = new ProjectManager();
@@ -35,7 +34,7 @@ $resource = array_shift($request);
 $userId = 1; // Mocking user ID 
 
 try {
-    // Handle different resource types
+    // Handling different resource types
     switch ($resource) {
         case 'projects':
             handleProjectResource($method, $request, $projectManager);
@@ -54,7 +53,7 @@ try {
             break;
 
         default:
-            http_response_code(404); // Not Found
+            http_response_code(404); 
             echo json_encode(['error' => 'Resource not found']);
             break;
     }
@@ -73,7 +72,7 @@ function handleProjectResource($method, $request, $projectManager)
     switch ($method) {
         case 'GET':
             if ($id) {
-                // Get a specific project
+             
                 $project = getProject($id, $projectManager);
                 if ($project) {
                     http_response_code(200); 
@@ -83,7 +82,7 @@ function handleProjectResource($method, $request, $projectManager)
                     echo json_encode(['error' => 'Project not found']);
                 }
             } else {
-                // List all projects
+               
                 $projects = getProjects($projectManager);
                 http_response_code(200); 
                 echo json_encode($projects);
@@ -91,10 +90,10 @@ function handleProjectResource($method, $request, $projectManager)
             break;
 
         case 'POST':
-            // Create a new project
+           
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validate required fields
+          
             if (!isset($data['name']) || !isset($data['source_language']) || !isset($data['target_language'])) {
                 http_response_code(400); // Bad Request
                 echo json_encode(['error' => 'Missing required fields']);
@@ -108,7 +107,7 @@ function handleProjectResource($method, $request, $projectManager)
             $newId = $projectManager->createProject($name, $sourceLanguage, $targetLanguage);
 
             if ($newId) {
-                http_response_code(201); // Created
+                http_response_code(201); 
                 echo json_encode([
                     'id' => $newId,
                     'message' => 'Project created successfully'
@@ -120,14 +119,13 @@ function handleProjectResource($method, $request, $projectManager)
             break;
 
         case 'PUT':
-            // Update a project
+           
             if (!$id) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'ID is required']);
                 break;
             }
 
-            // Check if the project exists
             if (!$projectManager->projectExists($id)) {
                 http_response_code(404); 
                 echo json_encode(['error' => 'Project not found']);
@@ -195,7 +193,7 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
     switch ($method) {
         case 'GET':
             if ($id) {
-                // Get a specific document
+                
                 $document = getDocument($id, $documentManager);
                 if ($document) {
                     http_response_code(200);
@@ -205,7 +203,7 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
                     echo json_encode(['error' => 'Document not found']);
                 }
             } else {
-                // List all documents, optionally filtered by project
+               
                 $documents = getDocuments($documentManager, $projectFilter);
                 http_response_code(200); // OK
                 echo json_encode($documents);
@@ -213,10 +211,10 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
             break;
 
         case 'POST':
-            // Create a new document
+            
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validate required fields
+          
             if (!isset($data['project_id']) || !isset($data['name']) || !isset($data['path'])) {
                 http_response_code(400); // Bad Request
                 echo json_encode(['error' => 'Missing required fields']);
@@ -227,7 +225,7 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
             $name = $data['name'];
             $path = $data['path'];
 
-            // Check if project exists
+           
             if (!$projectManager->projectExists($projectId)) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'Project does not exist']);
@@ -249,7 +247,7 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
             break;
 
         case 'PUT':
-            // Update a document
+            
             if (!$id) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'ID is required']);
@@ -279,14 +277,14 @@ function handleDocumentResource($method, $request, $documentManager, $projectMan
             break;
 
         case 'DELETE':
-            // Delete a document
+           
             if (!$id) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'ID is required']);
                 break;
             }
 
-            // Check if the document exists
+        
             if (!$documentManager->documentExists($id)) {
                 http_response_code(404); 
                 echo json_encode(['error' => 'Document not found']);
@@ -324,7 +322,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
     switch ($method) {
         case 'GET':
             if ($id) {
-                // Get a specific translation unit
+               
                 $unit = $translationManager->getTranslationUnit($id);
                 if ($unit) {
                     http_response_code(200); 
@@ -334,7 +332,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
                     echo json_encode(['error' => 'Translation unit not found']);
                 }
             } else {
-                // List all translation units, optionally filtered by document
+               
                 $units = getTranslationUnits($translationManager, $documentFilter);
                 http_response_code(200); 
                 echo json_encode($units);
@@ -342,10 +340,10 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
             break;
 
         case 'POST':
-            // Create a new translation unit
+           
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validate required fields
+           
             if (!isset($data['document_id']) || !isset($data['source_text'])) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'Missing required fields']);
@@ -357,7 +355,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
             $targetText = $data['target_text'] ?? null;
             $status = $data['status'] ?? 'new';
 
-            // Check if document exists
+           
             if (!$documentManager->documentExists($documentId)) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'Document does not exist']);
@@ -384,7 +382,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
             break;
 
         case 'PUT':
-            // Update an existing translation unit
+           
             global $userId;
 
             if (!$id) {
@@ -393,7 +391,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
                 break;
             }
 
-            // Check if the unit exists
+           
             $unit = $translationManager->getTranslationUnit($id);
             if (!$unit) {
                 http_response_code(404); 
@@ -403,7 +401,7 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
 
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Validate required fields
+           
             if (!isset($data['target_text'])) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'Missing target text']);
@@ -432,14 +430,14 @@ function handleTranslationUnitResource($method, $request, $translationManager, $
             break;
 
         case 'DELETE':
-            // Delete a translation unit
+           
             if (!$id) {
                 http_response_code(400); 
                 echo json_encode(['error' => 'ID is required']);
                 break;
             }
 
-            // Check if the unit exists
+           
             $unit = $translationManager->getTranslationUnit($id);
             if (!$unit) {
                 http_response_code(404); 
@@ -664,20 +662,20 @@ function deleteTranslationUnit($id, $translationManager)
     try {
         $pdo = $translationManager->getPdo();
 
-        // Start transaction
+       
         $pdo->beginTransaction();
 
-        // Delete history records first (due to foreign key constraints)
+      
         $stmt = $pdo->prepare("DELETE FROM translation_history WHERE translation_unit_id = :id");
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Delete the translation unit
+       
         $stmt = $pdo->prepare("DELETE FROM translation_units WHERE id = :id");
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Commit transaction
+      
         $pdo->commit();
         return true;
     } catch (PDOException $e) {
