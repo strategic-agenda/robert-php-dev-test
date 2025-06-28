@@ -38,15 +38,16 @@ const Home = () => {
 
   return (
     <div className="max-w-xl pb-8 mx-auto px-5 bg-slate-100">
+      <Add
+        translations={translations}
+        refreshTranslations={refreshTranslations}
+      />
       <List
         translations={translations}
         loading={loading}
         deleteTranslation={deleteTranslation}
       />
-      <Add
-        translations={translations}
-        refreshTranslations={refreshTranslations}
-      />
+      
     </div>
   );
 }
