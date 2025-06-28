@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-const EditTranslation = () => {
+const Edit = () => {
   const [data, setData] = useState([])
   const [source, setSource] = useState('');
   const [translation, setTranslation] = useState('');
@@ -67,4 +67,4 @@ const EditTranslation = () => {
   );
 }
 
-export default EditTranslation;
+export default Edit;

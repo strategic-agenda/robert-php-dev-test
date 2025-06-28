@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import Home from './components/Home';
-import EditTranslation from './components/EditTranslation';
-import AddTranslation from './components/AddTranslation';
+import EditTranslation from './components/translations/Edit';
+import AddTranslation from './components/translations/Add';
 
 const App = () => {
   return (

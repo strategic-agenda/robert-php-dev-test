@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from "axios";
 
-const AddTranslation = ({ setTranslations, translations }) => {
+const Add = ({ setTranslations, translations }) => {
 	const [source, setSource] = useState("")
 	const [translation, setTranslation] = useState("")
 
@@ -43,4 +43,4 @@ const AddTranslation = ({ setTranslations, translations }) => {
 	);
 }
 
-export default AddTranslation;
+export default Add;
