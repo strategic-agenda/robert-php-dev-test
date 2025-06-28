@@ -86,8 +86,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `email`, `password`, `created_at`) VALUES
-(1, 'Admin User', 'admin@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now()),
-(2, 'Developer User', 'developer@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now());
+(1, 'Admin', 'admin@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now()),
+(2, 'Developer', 'developer@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now());
 
 --
 -- Indexes for dumped tables
