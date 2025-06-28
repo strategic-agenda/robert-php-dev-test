@@ -17,7 +17,7 @@ const Edit = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.put("http://localhost/robert-php-dev-test/api/translations.php", {
+    axios.put("http://localhost/robert-php-dev-test/api/v1/translations.php", {
       id,
       source,
       translation

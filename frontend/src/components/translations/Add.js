@@ -8,7 +8,7 @@ const Add = ({ setTranslations, translations }) => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		axios
-			.post("http://localhost/robert-php-dev-test/api/translations.php", { source, translation })
+			.post("http://localhost/robert-php-dev-test/api/v1/translations.php", { source, translation })
 			.then((res) => {
 				setTranslations([...translations, { source, translation}])
 				setSource('');

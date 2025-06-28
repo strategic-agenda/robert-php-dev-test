@@ -9,7 +9,7 @@ const Home = () => {
 
   useEffect(() => {
     setLoading(true)
-    axios.get("http://localhost/robert-php-dev-test/api/translations.php")
+    axios.get("http://localhost/robert-php-dev-test/api/v1/translations.php")
       .then(response => {
         setTranslations(response.data)
       })
@@ -17,7 +17,7 @@ const Home = () => {
   }, [])
 
   const deleteTranslation = (id) => {
-    axios.delete(`http://localhost/robert-php-dev-test/api/translations.php`, { data: {
+    axios.delete(`http://localhost/robert-php-dev-test/api/v1/translations.php`, { data: {
       id
     } }).then((response) => {
       const newTranslation = translations.filter((translation) => translation.id !== id);
