@@ -7,13 +7,17 @@ const Home = () => {
   const [translations, setTranslations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const retrieveTranslations = () => {
     setLoading(true)
     axios.get("http://localhost/robert-php-dev-test/api/v1/translations.php")
       .then(response => {
         setTranslations(response.data)
       })
     setLoading(false)
+  }
+
+  useEffect(() => {
+    retrieveTranslations();
   }, [])
 
   const deleteTranslation = (id) => {
@@ -28,6 +32,10 @@ const Home = () => {
     });
   }
 
+  const refreshTranslations = () => {
+    retrieveTranslations();
+  }
+
   return (
     <div className="max-w-xl pb-8 mx-auto px-5 bg-slate-100">
       <List
@@ -37,7 +45,7 @@ const Home = () => {
       />
       <Add
         translations={translations}
-        setTranslations={setTranslations}
+        refreshTranslations={refreshTranslations}
       />
     </div>
   );

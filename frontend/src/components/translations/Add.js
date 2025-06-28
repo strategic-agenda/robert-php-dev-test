@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from "axios";
 
-const Add = ({ setTranslations, translations }) => {
+const Add = ({ refreshTranslations, translations }) => {
 	const [source, setSource] = useState("")
 	const [translation, setTranslation] = useState("")
 
@@ -10,7 +10,7 @@ const Add = ({ setTranslations, translations }) => {
 		axios
 			.post("http://localhost/robert-php-dev-test/api/v1/translations.php", { source, translation })
 			.then((res) => {
-				setTranslations([...translations, { source, translation}])
+				refreshTranslations();
 				setSource('');
 				setTranslation('');
 			});
