@@ -10,7 +10,7 @@ const TranslationList = ({ translations, loading, deleteTranslation }) => {
   return (
     <div className='py-5'>
       {loading && <p>loading ...</p>}
-      {translations &&
+      {translations && translations.length > 0 && 
         <ul>
           {(translations.map((translation) =>
             <li className='flex justify-between border-b-4' key={translation.id}>
