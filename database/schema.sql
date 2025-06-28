@@ -9,7 +9,7 @@ USE robert_php_dev_test;
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 14, 2019 at 07:17 AM
+-- Generation Time: Aug 14, 2025 at 07:17 AM
 -- Server version: 10.3.16-MariaDB
 -- PHP Version: 7.3.7
 
@@ -53,6 +53,22 @@ INSERT INTO `translations` (`id`, `user_id`, `source`, `translation`, `created_a
 
 -- --------------------------------------------------------
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `translation_histories`
+--
+
+CREATE TABLE `translation_histories` (
+  `id` int(11) NOT NULL,
+  `translation_id` int(11) NOT NULL,
+  `old_json` json NOT NULL,
+  `new_json` json NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `user`
 --
@@ -70,7 +86,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `email`, `password`, `created_at`) VALUES
-(1, 'Admin User', 'admin@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', '2019-08-12 16:01:21');
+(1, 'Admin User', 'admin@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now()),
+(2, 'Developer User', 'developer@gmail.com', '$2y$10$wRaspbwhqO3TUGUihy.hLOgC1OouA5GXTJvSlgigJSrugcBglw7F2', now());
 
 --
 -- Indexes for dumped tables
@@ -80,6 +97,12 @@ INSERT INTO `user` (`id`, `name`, `email`, `password`, `created_at`) VALUES
 -- Indexes for table `translations`
 --
 ALTER TABLE `translations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `translation_histories`
+--
+ALTER TABLE `translation_histories`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -96,6 +119,12 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `translations`
 --
 ALTER TABLE `translations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `translation_histories`
+--
+ALTER TABLE `translation_histories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --

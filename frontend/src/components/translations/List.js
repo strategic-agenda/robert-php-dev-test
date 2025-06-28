@@ -16,7 +16,6 @@ const TranslationList = ({ translations, loading, deleteTranslation }) => {
             <li className='flex justify-between border-b-4' key={translation.id}>
               <div className="flex ">
                 <p className='my-3 px-3'>{translation.source}</p>
-                <p className='my-3 px-3'>{translation.translation}</p>
               </div>
               <div>
                 <Link to={`/edit/${translation.id}`}>

@@ -10,10 +10,7 @@
 </div>
 <?php foreach ($data['translations'] as $translation) : ?>
     <div class="card mb-3 mt-2">
-        <div class="card-body"><h2 class="card-text"><?php echo  $translation->source ;?></h2></div>
-        <p class="card-body">
-            <?php echo  $translation->translation ;?>
-        </p>
+        <div class="card-body"><h4 class="card-text"><?php echo  $translation->source ;?></h4></div>        
         <p class="card-title bg-light p-2 mb-3">
             Created By <?php echo $translation->name ;?> on <?php echo  $translation->translationCreated ;?>
         </p>

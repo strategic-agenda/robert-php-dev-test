@@ -9,6 +9,7 @@ class Translations extends Controller{
         //new model instance
         $this->userModel = $this->model('User');
         $this->translationModel = $this->model('Translation');
+        $this->translationHistoryModel = $this->model('TranslationHistory');
     }
 
     public function index(){
@@ -89,16 +90,23 @@ class Translations extends Controller{
             ];
             //validate the source
             if(empty($data['source'])){
-                $data['source_err'] = 'Please enter translation source';
+                $data['source_err'] = 'Please enter source';
             }
             //validate the translation
             if(empty($data['translation'])){
-                $data['translation_err'] = 'Please enter the translation content';
+                $data['translation_err'] = 'Please enter translation';
             }
 
             //validate error free
             if(empty($data['source_err']) && empty($data['translation_err'])){
+                $oldTranslation = $this->translationModel->getTranslationById($id);
                 if($this->translationModel->updateTranslation($data)){
+                    $data = [
+                        'translation_id' => $id,
+                        'old_json' => json_encode(['source' => $oldTranslation->source, 'translation' => $oldTranslation->translation]),
+                        'new_json' => json_encode(['source' => $data['source'], 'translation' => $data['translation']]),
+                    ];
+                    $this->translationHistoryModel->addTranslationHistory($data);
                     flash('translation_message', 'Your translation have been updated');
                     redirect('translations');
                 }else{

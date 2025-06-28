@@ -17,13 +17,13 @@
                 <form method="post" action="<?php echo URLROOT ;?>/translations/edit/<?php echo $data['id'] ;?>">
                     <div class="form-group">
                         <label for="source">Source<sub>*</sub></label>
-                        <textarea type="text" name="source" class="form-control form-control-lg <?php echo (!empty($data['source_err'])) ? 'is-invalid' : '' ;?>"><?php echo $data['source'] ;?></textarea>
+                        <textarea rows="5" type="text" name="source" class="form-control form-control-lg <?php echo (!empty($data['source_err'])) ? 'is-invalid' : '' ;?>"><?php echo $data['source'] ;?></textarea>
                         <span class="invalid-feedback"><?php echo $data['source_err'] ;?> </span>
                     </div>
                     
                     <div class="form-group">
                         <label for="translation">Translation<sub>*</sub></label>
-                        <textarea type="text" name="translation" class="form-control form-control-lg <?php echo (!empty($data['translation_err'])) ? 'is-invalid' : '' ;?>"><?php echo $data['translation'] ;?></textarea>
+                        <textarea rows="5" type="text" name="translation" class="form-control form-control-lg <?php echo (!empty($data['translation_err'])) ? 'is-invalid' : '' ;?>"><?php echo $data['translation'] ;?></textarea>
                         <span class="invalid-feedback"><?php echo $data['translation_err'] ;?> </span>
                     </div>
 

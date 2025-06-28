@@ -7,7 +7,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch($method) {
     case 'GET':
         // Handle GET request (Retrieve translations)
-        $stmt = $conn->query("SELECT * FROM translations");
+        $stmt = $conn->query("SELECT * FROM translations Order BY id DESC");
         $translations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($translations);
         break;
