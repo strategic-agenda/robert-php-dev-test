@@ -35,7 +35,7 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col">
-                                <input type="submit" class="btn btn-success btn-block pull-left" value="Resgister">
+                                <input type="submit" class="btn btn-success btn-block pull-left" value="Register">
                             </div>
                             <div class="col">
                                 <a href="<?php echo URLROOT ;?>/users/login" class="btn btn-light btn-block pull-right">Already have account? Login </a>

@@ -6,7 +6,7 @@
     
     public function index(){
       if(isLoggedIn()){
-        redirect('posts');
+        redirect('translations');
       }
       $data = [
         'text1' => 'PHP Architect Test for Robert',

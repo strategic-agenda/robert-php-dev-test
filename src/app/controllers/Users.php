@@ -56,7 +56,7 @@ class Users extends Controller{
             if(empty($data['name_err']) && empty($data['email_err']) && empty($data['password_err']) && empty($data['password_confirm_err'])){
                 $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
                 if($this->userModel->register($data)){
-                    flash('register_success', 'you are registerd you can login now');
+                    flash('register_success', 'You are registerd you can login now');
                     redirect('users/login');
                 }
             }else{
@@ -115,7 +115,7 @@ class Users extends Controller{
                     //create session
                     $this->createUserSession($loggedInUser);
                 }else{
-                    $data['password_err'] = 'Password incorrect';
+                    $data['password_err'] = 'Password is incorrect';
                     $this->view('users/login', $data);
                 }
             }else{

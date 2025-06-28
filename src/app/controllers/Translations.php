@@ -7,7 +7,6 @@ class Translations extends Controller{
             redirect('users/login');
         }
         //new model instance
-        $this->postModel = $this->model('Post');
         $this->userModel = $this->model('User');
         $this->translationModel = $this->model('Translation');
     }
@@ -76,7 +75,7 @@ class Translations extends Controller{
         $this->view('translations/show', $data);
     }
 
-     //edit post
+     //edit translation
      public function edit($id){
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -90,17 +89,17 @@ class Translations extends Controller{
             ];
             //validate the source
             if(empty($data['source'])){
-                $data['source_err'] = 'Please enter post source';
+                $data['source_err'] = 'Please enter translation source';
             }
             //validate the translation
             if(empty($data['translation'])){
-                $data['translation_err'] = 'Please enter the post content';
+                $data['translation_err'] = 'Please enter the translation content';
             }
 
             //validate error free
             if(empty($data['source_err']) && empty($data['translation_err'])){
                 if($this->translationModel->updateTranslation($data)){
-                    flash('translation_message', 'Your post have been updated');
+                    flash('translation_message', 'Your translation have been updated');
                     redirect('translations');
                 }else{
                     die('something went wrong');
@@ -126,7 +125,7 @@ class Translations extends Controller{
         }
     }
     
-    //delete post
+    //delete translation
     public function delete($id){
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
             //check for owner
@@ -135,7 +134,7 @@ class Translations extends Controller{
                 redirect('translations');
             }
             
-            //call delete method from post model
+            //call delete method from translation model
             if($this->translationModel->deleteTranslation($id)){
                 flash('translation_message', 'Translation Removed');
                 redirect('translations');
