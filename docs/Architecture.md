@@ -52,3 +52,9 @@ created_at          TIMESTAMP NULL                          -- Version saved tim
 2) Git: Track code, schema migrations, and seeders in Git. Store translation source files (e.g. DOCX, XML) in a versioned archive location
 
 3) API Endpoint: Provide /api/translation-units/{id}/versions to retrieve history
+
+### 5. Solution Design Presentation
+
+`https://www.youtube.com/watch?v=_tz5gjTo354` watch this file for a video, screen share walk through for the solution
+
+See unit tests here: `tests/Unit/TranslationUnitManagerTest.php`
