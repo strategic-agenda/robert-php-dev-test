@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/config/database.php';
 
-header("Content-Type: application/json");
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch($method) {
