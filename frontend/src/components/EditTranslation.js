@@ -4,27 +4,23 @@ import { useNavigate, useParams } from "react-router";
 
 const EditTranslation = () => {
   const [data, setData] = useState([])
-  const [name, setName] = useState('');
-  const [username, setUserName] = useState('');
+  const [source, setSource] = useState('');
+  const [translation, setTranslation] = useState('');
 
   const { id } = useParams();
   const navigate = useNavigate()
 
   useEffect(() => {
-    axios.get("http://localhost:8000/users/" + id)
-      .then(response => {
-        const data = response.data;
-        setName(data.name);
-        setUserName(data.username);
-      })
-      .catch(error => console.log(error))
+    setSource(localStorage.getItem("source"));
+    setTranslation(localStorage.getItem("translation"));
   }, [id])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.put("http://localhost:8000/users/" + id, {
-      name,
-      username
+    axios.put("http://localhost/robert-php-dev-test/api/translations.php", {
+      id,
+      source,
+      translation
     })
       .then(response => {
         setData(response.data);
@@ -42,15 +38,15 @@ const EditTranslation = () => {
         <div className='flex flex-col justify-center items-center bg-slate-100 p-10 mt-10 rounded-md'>
           <input
             className='my-2 px-5 py-1 rounded-full border border-gray-600'
-            type="text" placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="text" placeholder="Source"
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
           />
           <input
             className='my-2 px-5 py-1 rounded-full border border-gray-600'
-            type="text" placeholder="UserName"
-            value={username}
-            onChange={(e) => setUserName(e.target.value)}
+            type="text" placeholder="Translation"
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
           />
           <div className="flex my-2">
             <button

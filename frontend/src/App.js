@@ -11,7 +11,6 @@ const App = () => {
         <span className="mx-2 before:block before:absolute before:-inset-1 before:-skew-y-3 before:bg-pink-400 relative inline-block">
           <span className="relative text-white "> Translations App </span>
         </span>
-        with React Hooks
       </blockquote>
       <Routes>
         <Route path='/' element={<Home />} />

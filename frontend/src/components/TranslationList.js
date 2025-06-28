@@ -1,29 +1,35 @@
 import { Link } from "react-router-dom";
 
-const TranslationList = ({ users, loading, deleteUser }) => {
-  
+const TranslationList = ({ translations, loading, deleteTranslation }) => {
+  const editTranslation = (translation) => {
+    console.log(translation);
+    localStorage.setItem("source", translation.source);
+    localStorage.setItem("translation", translation.translation);
+
+  }
   return (
     <div className='py-5'>
       {loading && <p>loading ...</p>}
-      {users &&
+      {translations &&
         <ul>
-          {(users.map((user) =>
-            <li className='flex justify-between border-b-4' key={user.id}>
+          {(translations.map((translation) =>
+            <li className='flex justify-between border-b-4' key={translation.id}>
               <div className="flex ">
-                <p className='my-3 px-3'>{user.source}</p>
-                <p className='my-3 px-3'>{user.translation}</p>
+                <p className='my-3 px-3'>{translation.source}</p>
+                <p className='my-3 px-3'>{translation.translation}</p>
               </div>
               <div>
-                <Link to={`/edit/${user.id}`}>
+                <Link to={`/edit/${translation.id}`}>
                   <button
                     className='mx-2 my-3 px-2 py-1 text-green-800
                        hover:bg-green-400 hover:rounded-md hover:border hover:border-green-800'
+                       onClick={()=>editTranslation(translation)}
                   >EDIT</button>
                 </Link>
                 <button
                   className='my-3 px-2 py-1 text-red-800 
                         hover:bg-red-400 hover:rounded-md hover:border hover:border-red-800'
-                  onClick={() => deleteUser(user.id)}
+                  onClick={() => deleteTranslation(translation.id)}
                 >Delete</button>
               </div>
             </li>
