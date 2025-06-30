@@ -1,0 +1,75 @@
+networks:
+    interview-backend:
+        external: true
+
+    interview-frontend:
+        external: true
+
+services:
+    nginx:
+        container_name: nginx
+        image: interview/nginx
+        build:
+            context: .
+            dockerfile: ./nginx/Dockerfile
+        restart: always
+        volumes:
+            - ./nginx/confs:/etc/nginx/confs
+            - ./nginx/sites:/etc/nginx/sites
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+        networks:
+            - interview-frontend
+            - interview-backend
+        ports:
+            - "80:80"
+            - "3000:3000"
+
+    mysql:
+        # platform: linux/arm64/v8
+        container_name: mysql
+        image: interview/mysql
+        build:
+            context: .
+            dockerfile: ./mysql/Dockerfile
+        command:
+            --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+        restart: always
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+        networks:
+            - interview-backend
+        expose:
+            - "3306"
+            - "33060"
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234
+
+    phpmyadmin:
+        container_name: phpmyadmin
+        image: interview/phpmyadmin
+        build:
+            context: .
+            dockerfile: ./phpmyadmin/Dockerfile
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+        restart: always
+        networks:
+            - interview-backend
+        ports:
+            - "3022:80"
+
+    redis:
+        container_name: redis
+        image: interview/redis
+        build:
+            context: ./redis
+            dockerfile: Dockerfile
+        restart: always
+        command: redis-server --requirepass 1234
+        volumes:
+            - ./redis:/var/lib/redis
+        networks:
+            - interview-backend
+        expose:
+            - "6379"

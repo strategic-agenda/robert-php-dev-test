@@ -1,0 +1,20 @@
+networks:
+    interview-backend:
+        external: true
+
+services:
+    api:
+        container_name: api
+        image: interview/api
+        build:
+            context: .
+            dockerfile: ./docker/apache/Dockerfile
+        restart: always
+        volumes:
+            - ./code:/var/www/html
+            - ./configs:/var/www/configs
+            - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+        networks:
+            - interview-backend
+        expose:
+            - "80"

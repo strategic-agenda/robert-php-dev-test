@@ -1,0 +1,8 @@
+{
+    "driver":"mysql",
+    "port":"3306",
+    "host":"mysql",
+    "database":"interview",
+    "username":"root",
+    "password":"1234"
+}
