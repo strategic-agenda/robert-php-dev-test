@@ -1,0 +1,21 @@
+networks:
+    interview-frontend:
+        external: true
+
+services:
+    web:
+        container_name: web
+        image: interview/web
+        build:
+            context: .
+            dockerfile: ./docker/node/Dockerfile
+        restart: always
+        networks:
+            - interview-frontend
+        volumes:
+            - ./code:/code
+        expose:
+            - "3000"
+        environment:
+            - WATCHPACK_POLLING=true
+

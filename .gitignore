@@ -1,0 +1,5 @@
+.DS_Store
+
+_docker/mysql/data
+api/code/vendor
+www/code/node_modules
