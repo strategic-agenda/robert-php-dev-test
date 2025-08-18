@@ -1,0 +1,1 @@
+{"version":1,"defects":{"TranslationUnitManagerTest::testUpdateUnit":8},"times":{"TranslationUnitManagerTest::testAddAndGetUnit":1.218,"TranslationUnitManagerTest::testUpdateUnit":0.026,"TranslationUnitTest::testUpdateTranslationChangesTextAndTimestamp":1.288}}
